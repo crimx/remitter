@@ -20,3 +20,43 @@ An TypeScript friendly event emitter with easy re-emitting events.
 ```bash
 npm add remitter
 ```
+
+## Usage
+
+```ts
+import { Remitter } from "remitter";
+
+interface EventConfig {
+  event1: string;
+  event2: void;
+}
+
+const remitter = new Remitter();
+
+const disposer = remitter.on("event1", value => {
+  console.log("event1", value);
+});
+
+remitter.emit("event1", "hello"); // logs "event1 hello"
+
+remitter.emit("event2"); // nothing logs
+
+disposer();
+remitter.emit("event1", "world"); // nothing logs
+```
+
+### Tap
+
+You may tap into other events which will be lazy-executed when listener count of a event grows from 0 to 1 and be disposed when listener count drops from 1 to 0.
+
+```js
+remitter.tap("event1", () => {
+  const handler = e => {
+    console.log(e);
+  };
+  otherEvent.addListener(handler);
+  return () => {
+    otherEvent.removeListener(handler);
+  };
+});
+```
