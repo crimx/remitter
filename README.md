@@ -1,12 +1,12 @@
 # remitter
 
 <p align="center">
-  <img width="200" src="https://raw.githubusercontent.com/crimx/remitter/master/assets/remitter.svg">
+  <img width="200" src="https://raw.githubusercontent.com/crimx/remitter/main/assets/remitter.svg">
 </p>
 
 [![Build Status](https://github.com/crimx/remitter/actions/workflows/build.yml/badge.svg)](https://github.com/crimx/remitter/actions/workflows/build.yml)
 [![npm-version](https://img.shields.io/npm/v/remitter.svg)](https://www.npmjs.com/package/remitter)
-[![Coverage Status](https://img.shields.io/coveralls/github/crimx/remitter/master)](https://coveralls.io/github/crimx/remitter?branch=master)
+[![Coverage Status](https://img.shields.io/coveralls/github/crimx/remitter/main)](https://coveralls.io/github/crimx/remitter?branch=main)
 [![minified-size](https://img.shields.io/bundlephobia/minzip/remitter)](https://bundlephobia.com/package/remitter)
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?maxAge=2592000)](http://commitizen.github.io/cz-cli/)
@@ -31,7 +31,7 @@ interface EventConfig {
   event2: void;
 }
 
-const remitter = new Remitter();
+const remitter = new Remitter<EventConfig>();
 
 const disposer = remitter.on("event1", value => {
   console.log("event1", value);
