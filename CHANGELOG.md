@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.1.0 (2022-06-16)
+
+
+### Features
+
+* add remitter ([bdea21b](https://github.com/crimx/remitter/commit/bdea21b3d29d29570d6f2790d91649d47e950691))
+
 ### [1.2.1](https://github.com/crimx/value-enhancer/compare/v1.2.0...v1.2.1) (2022-06-10)
 
 ## [1.2.0](https://github.com/crimx/value-enhancer/compare/v1.1.1...v1.2.0) (2022-06-10)
