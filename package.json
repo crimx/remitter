@@ -1,0 +1,40 @@
+{
+  "name": "remitter",
+  "version": "0.1.0",
+  "private": false,
+  "description": "An TypeScript friendly event emitter with easy re-emitting events.",
+  "license": "MIT",
+  "author": "CRIMX <straybugs@gmail.com> (https://github.com/crimx/)",
+  "repository": "crimx/remitter",
+  "sideEffects": false,
+  "main": "./dist/remitter.cjs.js",
+  "module": "./dist/remitter.es.js",
+  "types": "./dist/remitter.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "pnpm run build",
+    "lint": "eslint --ext .ts,.tsx . && prettier --check .",
+    "test": "vitest run --coverage",
+    "docs": "typedoc --includeVersion --excludePrivate --out docs src/index.ts",
+    "types": "cross-env NODE_ENV=production tsc --declaration --emitDeclarationOnly --jsx react --esModuleInterop --outDir dist",
+    "build": "vite build && npm run types",
+    "build:dev": "vite build --mode development && npm run types",
+    "release": "standard-version"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.1",
+    "c8": "^7.11.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "prettier": "^2.4.0",
+    "standard-version": "^9.3.1",
+    "typedoc": "^0.22.3",
+    "typescript": "^4.4.3",
+    "vite": "^2.5.6",
+    "vitest": "^0.8.4"
+  }
+}

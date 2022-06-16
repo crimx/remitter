@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "isolatedModules": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "module": "ESNext",
+    "lib": ["ESNext"],
+    "types": ["vite/client"],
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  }
+}
