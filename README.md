@@ -13,7 +13,7 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-brightgreen.svg?maxAge=2592000)](https://conventionalcommits.org)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-An TypeScript friendly event emitter with easy re-emitting events.
+A TypeScript friendly event emitter with easy re-emitting events.
 
 ## Install
 
@@ -37,12 +37,19 @@ const disposer = remitter.on("event1", value => {
   console.log("event1", value);
 });
 
+remitter.count("event1"); // 1
+
 remitter.emit("event1", "hello"); // logs "event1 hello"
 
 remitter.emit("event2"); // nothing logs
 
 disposer();
 remitter.emit("event1", "world"); // nothing logs
+
+remitter.clear("event2"); // remove all listeners for event2
+remitter.count(); // 0
+
+remitter.destroy(); // removes all listeners and dispose tapped events
 ```
 
 ### Tap
@@ -52,7 +59,7 @@ You may tap into other events which will be lazy-executed when listener count of
 ```js
 remitter.tap("event1", () => {
   const handler = e => {
-    console.log(e);
+    remitter.emit("event2", e.value + 1);
   };
   otherEvent.addListener(handler);
   return () => {

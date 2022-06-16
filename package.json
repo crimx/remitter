@@ -2,7 +2,7 @@
   "name": "remitter",
   "version": "0.2.1",
   "private": false,
-  "description": "An TypeScript friendly event emitter with easy re-emitting events.",
+  "description": "A TypeScript friendly event emitter with easy re-emitting events.",
   "license": "MIT",
   "author": "CRIMX <straybugs@gmail.com> (https://github.com/crimx/)",
   "repository": "crimx/remitter",
