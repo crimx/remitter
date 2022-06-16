@@ -47,7 +47,7 @@ remitter.emit("event1", "world"); // nothing logs
 
 ### Tap
 
-You may tap into other events which will be lazy-executed when listener count of a event grows from 0 to 1 and be disposed when listener count drops from 1 to 0.
+You may tap into other events which will be lazy-executed when listener count of an event name grows from 0 to 1 and be disposed when listener count drops from 1 to 0.
 
 ```js
 remitter.tap("event1", () => {
@@ -60,3 +60,7 @@ remitter.tap("event1", () => {
   };
 });
 ```
+
+### Acknowledgment
+
+Huge thanks to [@recursivefunk](https://github.com/recursivefunk) for giving away the NPM package name `remitter`.
