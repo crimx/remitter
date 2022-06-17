@@ -52,7 +52,7 @@ remitter.count(); // 0
 remitter.destroy(); // removes all listeners and dispose tapped events
 ```
 
-### Tap
+### Remit
 
 You may tap into other events which will be lazy-executed when listener count of an event name grows from 0 to 1 and be disposed when listener count drops from 1 to 0.
 
