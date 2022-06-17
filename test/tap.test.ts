@@ -34,7 +34,7 @@ describe("tap", () => {
     expect(spy2).toHaveBeenCalledTimes(0);
     expect(spy2Disposer).toHaveBeenCalledTimes(0);
 
-    expect(spy1).lastCalledWith();
+    expect(spy1).lastCalledWith(remitter);
     expect(spy3).toHaveBeenCalledTimes(0);
 
     spy1.mockClear();
@@ -104,5 +104,66 @@ describe("tap", () => {
     expect(spy1).toHaveBeenCalledTimes(1);
     expect(spy1Disposer).toHaveBeenCalledTimes(1);
     expect(spy2).toHaveBeenCalledTimes(0);
+  });
+
+  it("should support pure `start` callback", () => {
+    type OtherEventListener = (v: string) => void;
+    const otherEventListeners = new Set<OtherEventListener>();
+    const otherEvent = {
+      addListener: vi.fn((listener: OtherEventListener) =>
+        otherEventListeners.add(listener)
+      ),
+      removeListener: vi.fn((listener: OtherEventListener) =>
+        otherEventListeners.delete(listener)
+      ),
+      emit: vi.fn((value: string) =>
+        otherEventListeners.forEach(listener => listener(value))
+      ),
+    };
+
+    interface RemitterConfig {
+      event1: string;
+    }
+
+    const pureStartCallback = (remitter: Remitter<RemitterConfig>) => {
+      const handler = (value: string) => {
+        remitter.emit("event1", "remitter-" + value);
+      };
+      otherEvent.addListener(handler);
+      return () => otherEvent.removeListener(handler);
+    };
+
+    const remitter = new Remitter<RemitterConfig>();
+
+    remitter.tap("event1", pureStartCallback);
+
+    expect(otherEvent.addListener).toHaveBeenCalledTimes(0);
+    expect(otherEvent.removeListener).toHaveBeenCalledTimes(0);
+    expect(otherEvent.emit).toHaveBeenCalledTimes(0);
+
+    otherEvent.emit("other-event1");
+
+    expect(otherEvent.addListener).toHaveBeenCalledTimes(0);
+    expect(otherEvent.removeListener).toHaveBeenCalledTimes(0);
+    expect(otherEvent.emit).toHaveBeenCalledTimes(1);
+    expect(otherEvent.emit).lastCalledWith("other-event1");
+
+    const spy1 = vi.fn();
+    remitter.on("event1", spy1);
+
+    expect(otherEvent.addListener).toHaveBeenCalledTimes(1);
+    expect(otherEvent.removeListener).toHaveBeenCalledTimes(0);
+    expect(otherEvent.emit).toHaveBeenCalledTimes(1);
+    expect(otherEvent.emit).lastCalledWith("other-event1");
+    expect(spy1).toHaveBeenCalledTimes(0);
+
+    otherEvent.emit("other-event2");
+
+    expect(otherEvent.addListener).toHaveBeenCalledTimes(1);
+    expect(otherEvent.removeListener).toHaveBeenCalledTimes(0);
+    expect(otherEvent.emit).toHaveBeenCalledTimes(2);
+    expect(otherEvent.emit).lastCalledWith("other-event2");
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy1).lastCalledWith("remitter-other-event2");
   });
 });

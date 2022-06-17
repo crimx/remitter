@@ -68,6 +68,22 @@ remitter.tap("event1", () => {
 });
 ```
 
+The callback function can also be a pure function.
+
+```js
+const tapToOtherEvent = remitter => {
+  const handler = e => {
+    remitter.emit("event2", e.value + 1);
+  };
+  otherEvent.addListener(handler);
+  return () => {
+    otherEvent.removeListener(handler);
+  };
+};
+
+remitter.tap("event1", tapToOtherEvent);
+```
+
 ### Acknowledgment
 
 Huge thanks to [@recursivefunk](https://github.com/recursivefunk) for giving away the NPM package name `remitter`.

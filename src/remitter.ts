@@ -132,13 +132,13 @@ export class Remitter<TConfig = any> {
    */
   public tap<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
-    start: () => RemitterDisposer
+    start: (remitter: Remitter<TConfig>) => RemitterDisposer
   ): RemitterDisposer {
     let disposer: RemitterDisposer | undefined;
     const relayListener: RelayListener<TEventName> = {
       start: name => {
         if (name === eventName) {
-          disposer = start();
+          disposer = start(this);
         }
       },
       dispose: name => {
