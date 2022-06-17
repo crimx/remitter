@@ -125,12 +125,13 @@ export class Remitter<TConfig = any> {
 
   /**
    * Start a side effect when the eventName has a first listener.
+   * Dispose the side effect when the eventName has no listeners.
    * For example tap into other events.
    *
    * @param eventName
    * @param start A function that is called when listener count if `eventName` grows from 0 to 1. Returns a disposer when listener count if `eventName` drops from 1 to 0.
    */
-  public tap<TEventName extends RemitterEventNames<TConfig>>(
+  public remit<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
     start: (remitter: Remitter<TConfig>) => RemitterDisposer
   ): RemitterDisposer {

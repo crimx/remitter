@@ -57,9 +57,9 @@ remitter.destroy(); // removes all listeners and dispose tapped events
 You may tap into other events which will be lazy-executed when listener count of an event name grows from 0 to 1 and be disposed when listener count drops from 1 to 0.
 
 ```js
-remitter.tap("event1", () => {
+remitter.remit("event1", () => {
   const handler = e => {
-    remitter.emit("event2", e.value + 1);
+    remitter.emit("event1", e.value + 1);
   };
   otherEvent.addListener(handler);
   return () => {
@@ -73,7 +73,7 @@ The callback function can also be a pure function.
 ```js
 const tapToOtherEvent = remitter => {
   const handler = e => {
-    remitter.emit("event2", e.value + 1);
+    remitter.emit("event1", e.value + 1);
   };
   otherEvent.addListener(handler);
   return () => {
@@ -81,7 +81,7 @@ const tapToOtherEvent = remitter => {
   };
 };
 
-remitter.tap("event1", tapToOtherEvent);
+remitter.remit("event1", tapToOtherEvent);
 ```
 
 ### Acknowledgment

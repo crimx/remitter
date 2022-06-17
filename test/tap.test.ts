@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { Remitter } from "../src/remitter";
 
-describe("tap", () => {
+describe("remit", () => {
   it("should run prepare when first listener is added", () => {
     const spy1Disposer = vi.fn();
     const spy1 = vi.fn(() => spy1Disposer);
@@ -10,10 +10,10 @@ describe("tap", () => {
     const spy3 = vi.fn();
     const remitter = new Remitter<{ event1: number }>();
 
-    remitter.tap("event1", spy1);
+    remitter.remit("event1", spy1);
 
     // @ts-expect-error - no event2
-    remitter.tap("event2", spy2);
+    remitter.remit("event2", spy2);
 
     expect(spy1).toHaveBeenCalledTimes(0);
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
@@ -50,7 +50,7 @@ describe("tap", () => {
     expect(spy3).toHaveBeenCalledTimes(0);
   });
 
-  it("should dispose tap", () => {
+  it("should dispose remit", () => {
     const spy1Disposer = vi.fn();
     const spy1 = vi.fn(() => spy1Disposer);
 
@@ -58,7 +58,7 @@ describe("tap", () => {
       event1: number;
     }>();
 
-    const dispose1 = remitter.tap("event1", spy1);
+    const dispose1 = remitter.remit("event1", spy1);
 
     expect(spy1).toHaveBeenCalledTimes(0);
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
@@ -81,7 +81,7 @@ describe("tap", () => {
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
 
-    const dispose2 = remitter.tap("event1", spy1);
+    const dispose2 = remitter.remit("event1", spy1);
 
     expect(spy1).toHaveBeenCalledTimes(0);
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
@@ -135,7 +135,7 @@ describe("tap", () => {
 
     const remitter = new Remitter<RemitterConfig>();
 
-    remitter.tap("event1", pureStartCallback);
+    remitter.remit("event1", pureStartCallback);
 
     expect(otherEvent.addListener).toHaveBeenCalledTimes(0);
     expect(otherEvent.removeListener).toHaveBeenCalledTimes(0);
