@@ -1,6 +1,4 @@
-type EventData<TData> = TData extends never | undefined | void ? void : TData;
-
-type DatalessConfig<TConfig> = {
+type RemitterDatalessEventName<TConfig> = {
   [EventName in keyof TConfig]: TConfig[EventName] extends
     | undefined
     | void
@@ -18,8 +16,10 @@ export type RemitterEventNames<TConfig> = Extract<keyof TConfig, string>;
 
 export type RemitterListener<
   TConfig,
-  TEventName extends RemitterEventNames<TConfig>
-> = (eventData: EventData<TConfig[TEventName]>) => void;
+  TEventName extends RemitterEventNames<TConfig> = RemitterEventNames<TConfig>
+> = TEventName extends RemitterDatalessEventName<TConfig>
+  ? () => void
+  : (eventData: TConfig[TEventName]) => void;
 
 export type RemitterDisposer = () => void;
 
@@ -34,22 +34,20 @@ export class Remitter<TConfig = any> {
   /**
    * Emit an event to `eventName` listeners.
    */
-  public emit<TEventName extends DatalessConfig<TConfig>>(
+  public emit<TEventName extends RemitterDatalessEventName<TConfig>>(
     eventName: TEventName
   ): void;
   public emit<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
-    eventData: EventData<TConfig[TEventName]>
+    eventData: TConfig[TEventName]
   ): void;
   public emit<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
-    eventData?: EventData<TConfig[TEventName]>
+    eventData?: TConfig[TEventName]
   ): void {
     this.listeners
       .get(eventName)
-      ?.forEach(listener =>
-        listener(eventData as EventData<TConfig[TEventName]>)
-      );
+      ?.forEach(listener => listener(eventData as TConfig[TEventName]));
   }
 
   /**
