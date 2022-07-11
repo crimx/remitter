@@ -17,7 +17,7 @@ export type RemitterEventNames<TConfig> = Extract<keyof TConfig, string>;
 export type RemitterListener<
   TConfig,
   TEventName extends RemitterEventNames<TConfig> = RemitterEventNames<TConfig>
-> = TEventName extends RemitterDatalessEventName<TConfig>
+> = TConfig[TEventName] extends undefined | void | never
   ? () => void
   : (eventData: TConfig[TEventName]) => void;
 
