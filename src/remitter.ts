@@ -161,3 +161,8 @@ export class Remitter<TConfig = any> {
     this.relayListeners.clear();
   }
 }
+
+export type ReadonlyRemitter<TConfig = any> = Pick<
+  Remitter<TConfig>,
+  "destroy" | "count" | "on" | "off" | "clear"
+>;
