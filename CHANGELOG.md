@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.6](https://github.com/crimx/remitter/compare/v0.2.3...v0.2.6) (2022-07-12)
+
+
+### Bug Fixes
+
+* listener typings ([1ecc833](https://github.com/crimx/remitter/commit/1ecc833c648d12b610e66e2f81c72adbf17fad52))
+* tpying ([cb5cfb2](https://github.com/crimx/remitter/commit/cb5cfb2387a548f8d2015560e9b98016cdc3c18e))
+
 ### [0.2.3](https://github.com/crimx/remitter/compare/v0.2.2...v0.2.3) (2022-06-17)
 
 ### [0.2.2](https://github.com/crimx/remitter/compare/v0.2.1...v0.2.2) (2022-06-17)
