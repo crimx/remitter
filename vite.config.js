@@ -3,9 +3,7 @@
 import path from "path";
 import { defineConfig } from "vitest/config";
 
-export default defineConfig(({ mode }) => {
-  const isProd = mode === "production";
-
+export default defineConfig(() => {
   return {
     build: {
       lib: {
@@ -13,11 +11,11 @@ export default defineConfig(({ mode }) => {
         formats: ["es", "cjs"],
       },
       outDir: "dist",
-      sourcemap: isProd,
-      rollupOptions: {
-        external: ["react"],
-      },
-      minify: isProd,
+      sourcemap: true,
+      minify: false,
+    },
+    esbuild: {
+      mangleProps: /[^_]_$/,
     },
     test: {
       coverage: {

@@ -7,8 +7,8 @@
   "author": "CRIMX <straybugs@gmail.com> (https://github.com/crimx/)",
   "repository": "crimx/remitter",
   "sideEffects": false,
-  "main": "./dist/remitter.cjs.js",
-  "module": "./dist/remitter.es.js",
+  "main": "./dist/remitter.js",
+  "module": "./dist/remitter.mjs",
   "types": "./dist/remitter.d.ts",
   "files": [
     "dist"
@@ -19,7 +19,7 @@
     "test": "vitest run --coverage",
     "docs": "typedoc --includeVersion --excludePrivate --out docs src/remitter.ts",
     "types": "cross-env NODE_ENV=production tsc --declaration --emitDeclarationOnly --jsx react --esModuleInterop --outDir dist",
-    "build": "vite build && npm run types",
+    "build": "cross-env NODE_ENV=production vite build && npm run types",
     "build:dev": "vite build --mode development && npm run types",
     "release": "standard-version"
   },
@@ -34,7 +34,7 @@
     "standard-version": "^9.3.1",
     "typedoc": "^0.22.3",
     "typescript": "^4.4.3",
-    "vite": "^2.5.6",
-    "vitest": "^0.8.4"
+    "vite": "^3.0.6",
+    "vitest": "^0.21.1"
   }
 }

@@ -4,6 +4,7 @@
     "coverallsapp",
     "CRIMX",
     "Dataless",
+    "esbuild",
     "lcov",
     "pnpm",
     "preinstall",
