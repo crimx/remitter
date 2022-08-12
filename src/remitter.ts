@@ -8,8 +8,8 @@ type RemitterDatalessEventName<TConfig> = {
 }[keyof TConfig];
 
 type RelayListener<TEventName = any> = {
-  start: (eventName: TEventName) => void;
-  dispose: (eventName?: TEventName) => void;
+  start_: (eventName: TEventName) => void;
+  dispose_: (eventName?: TEventName) => void;
 };
 
 export type RemitterEventNames<TConfig> = Extract<keyof TConfig, string>;
@@ -24,12 +24,12 @@ export type RemitterListener<
 export type RemitterDisposer = () => void;
 
 export class Remitter<TConfig = any> {
-  private readonly listeners = new Map<
+  private readonly listeners_ = new Map<
     RemitterEventNames<TConfig>,
     Set<RemitterListener<TConfig, any>>
   >();
 
-  private readonly relayListeners = new Set<RelayListener>();
+  private readonly relayListeners_ = new Set<RelayListener>();
 
   /**
    * Emit an event to `eventName` listeners.
@@ -45,7 +45,7 @@ export class Remitter<TConfig = any> {
     eventName: TEventName,
     eventData?: TConfig[TEventName]
   ): void {
-    this.listeners
+    this.listeners_
       .get(eventName)
       ?.forEach(listener => listener(eventData as TConfig[TEventName]));
   }
@@ -57,15 +57,15 @@ export class Remitter<TConfig = any> {
     eventName: TEventName,
     listener: RemitterListener<TConfig, TEventName>
   ): RemitterDisposer {
-    let listeners = this.listeners.get(eventName);
+    let listeners = this.listeners_.get(eventName);
     if (!listeners) {
       listeners = new Set();
-      this.listeners.set(eventName, listeners);
+      this.listeners_.set(eventName, listeners);
     }
     listeners.add(listener);
 
     if (listeners.size === 1) {
-      this.relayListeners.forEach(listener => listener.start(eventName));
+      this.relayListeners_.forEach(listener => listener.start_(eventName));
     }
 
     return () => {
@@ -80,12 +80,12 @@ export class Remitter<TConfig = any> {
     eventName: TEventName,
     listener: RemitterListener<TConfig, TEventName>
   ): boolean {
-    const listeners = this.listeners.get(eventName);
+    const listeners = this.listeners_.get(eventName);
     if (listeners) {
       const result = listeners.delete(listener);
       if (listeners.size <= 0) {
-        this.listeners.delete(eventName);
-        this.relayListeners.forEach(listener => listener.dispose(eventName));
+        this.listeners_.delete(eventName);
+        this.relayListeners_.forEach(listener => listener.dispose_(eventName));
       }
       return result;
     }
@@ -96,9 +96,9 @@ export class Remitter<TConfig = any> {
     eventName?: TEventName
   ): void {
     if (eventName) {
-      this.listeners.get(eventName)?.clear();
+      this.listeners_.get(eventName)?.clear();
     } else {
-      this.listeners.clear();
+      this.listeners_.clear();
     }
   }
 
@@ -111,10 +111,10 @@ export class Remitter<TConfig = any> {
     eventName?: TEventName
   ): number {
     if (eventName) {
-      return this.listeners.get(eventName)?.size || 0;
+      return this.listeners_.get(eventName)?.size || 0;
     } else {
       let count = 0;
-      this.listeners.forEach(listeners => {
+      this.listeners_.forEach(listeners => {
         count += listeners.size;
       });
       return count;
@@ -135,20 +135,20 @@ export class Remitter<TConfig = any> {
   ): RemitterDisposer {
     let disposer: RemitterDisposer | undefined;
     const relayListener: RelayListener<TEventName> = {
-      start: name => {
+      start_: name => {
         if (name === eventName) {
           disposer = start(this);
         }
       },
-      dispose: name => {
+      dispose_: name => {
         if (disposer && (!name || name === eventName)) {
           disposer();
         }
       },
     };
-    this.relayListeners.add(relayListener);
+    this.relayListeners_.add(relayListener);
     return () => {
-      this.relayListeners.delete(relayListener);
+      this.relayListeners_.delete(relayListener);
       if (disposer) {
         disposer();
       }
@@ -157,8 +157,8 @@ export class Remitter<TConfig = any> {
 
   public destroy(): void {
     this.clear();
-    this.relayListeners.forEach(listener => listener.dispose());
-    this.relayListeners.clear();
+    this.relayListeners_.forEach(listener => listener.dispose_());
+    this.relayListeners_.clear();
   }
 }
 
