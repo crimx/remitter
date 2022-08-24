@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.8](https://github.com/crimx/remitter/compare/v0.2.7...v0.2.8) (2022-08-24)
+
+
+### Bug Fixes
+
+* start remit immediately if eventName exists listeners ([af2081e](https://github.com/crimx/remitter/commit/af2081ea1a7298c324973c33bd4467af6e0cdc5c))
+
 ### [0.2.7](https://github.com/crimx/remitter/compare/v0.2.6...v0.2.7) (2022-08-12)
 
 ### [0.2.6](https://github.com/crimx/remitter/compare/v0.2.3...v0.2.6) (2022-07-12)
