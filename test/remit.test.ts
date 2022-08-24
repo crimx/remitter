@@ -166,4 +166,29 @@ describe("remit", () => {
     expect(spy1).toHaveBeenCalledTimes(1);
     expect(spy1).lastCalledWith("remitter-other-event2");
   });
+
+  it("should start remit immediately if eventName exists listeners", () => {
+    const spy1Disposer = vi.fn();
+    const spy1 = vi.fn(() => spy1Disposer);
+    const spy2 = vi.fn();
+    const remitter = new Remitter<{ event1: number; event2: number }>();
+
+    remitter.on("event1", spy2);
+
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+
+    remitter.remit("event2", spy1);
+
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+
+    remitter.remit("event1", spy1);
+
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+  });
 });

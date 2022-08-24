@@ -147,6 +147,9 @@ export class Remitter<TConfig = any> {
       },
     };
     this.relayListeners_.add(relayListener);
+    if ((this.listeners_.get(eventName)?.size || 0) > 0) {
+      disposer = start(this);
+    }
     return () => {
       this.relayListeners_.delete(relayListener);
       if (disposer) {
