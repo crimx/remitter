@@ -163,6 +163,31 @@ describe("basic usage", () => {
     });
   });
 
+  it("should once", () => {
+    const spy = vi.fn();
+
+    interface RemitterConfig {
+      event1: number;
+    }
+    const remitter = new Remitter<RemitterConfig>();
+    remitter.once("event1", spy);
+
+    expect(remitter.count()).toBe(1);
+    expect(remitter.count("event1")).toBe(1);
+    expect(spy).toHaveBeenCalledTimes(0);
+
+    remitter.emit("event1", 1);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).lastCalledWith(1);
+    expect(remitter.count()).toBe(0);
+
+    spy.mockClear();
+
+    remitter.emit("event1", 2);
+    expect(remitter.count()).toBe(0);
+    expect(spy).toHaveBeenCalledTimes(0);
+  });
+
   it("should destroy", () => {
     const spies1 = Array.from({ length: 10 }).map(() => vi.fn());
     const spies2 = Array.from({ length: 20 }).map(() => vi.fn());

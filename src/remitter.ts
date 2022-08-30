@@ -31,6 +31,11 @@ export class Remitter<TConfig = any> {
 
   private readonly relayListeners_ = new Set<RelayListener>();
 
+  private onceListeners_?: WeakMap<
+    RemitterListener<TConfig, any>,
+    RemitterListener<TConfig, any>
+  >;
+
   /**
    * Emit an event to `eventName` listeners.
    */
@@ -83,6 +88,22 @@ export class Remitter<TConfig = any> {
   }
 
   /**
+   * Add a one-time listener to the eventName.
+   */
+  public once<TEventName extends RemitterEventNames<TConfig>>(
+    eventName: TEventName,
+    listener: RemitterListener<TConfig, TEventName>
+  ): RemitterDisposer {
+    const onceListener = (eventData => {
+      this.off(eventName, listener);
+      return listener(eventData);
+    }) as RemitterListener<TConfig, TEventName>;
+    this.onceListeners_ = this.onceListeners_ || new WeakMap();
+    this.onceListeners_.set(listener, onceListener);
+    return this.on(eventName, onceListener);
+  }
+
+  /**
    * Remove a listener from the eventName.
    */
   public off<TEventName extends RemitterEventNames<TConfig>>(
@@ -91,7 +112,9 @@ export class Remitter<TConfig = any> {
   ): boolean {
     const listeners = this.listeners_.get(eventName);
     if (listeners) {
-      const result = listeners.delete(listener);
+      const result = listeners.delete(
+        this.onceListeners_?.get(listener) || listener
+      );
       if (listeners.size <= 0) {
         this.listeners_.delete(eventName);
         for (const listener of this.relayListeners_) {

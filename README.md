@@ -13,7 +13,7 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-brightgreen.svg?maxAge=2592000)](https://conventionalcommits.org)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-A TypeScript friendly event emitter with easy re-emitting events.
+A tiny TypeScript friendly event emitter that supports easy re-emitting events.
 
 ## Install
 
@@ -37,7 +37,13 @@ const disposer = remitter.on("event1", value => {
   console.log("event1", value);
 });
 
-remitter.count("event1"); // 1
+remitter.once("event1", value => {
+  console.log("event1-once", value);
+});
+
+remitter.count("event1"); // 2
+
+remitter.emit("event1", "hello"); // logs "event1 hello" and "event1-once hello"
 
 remitter.emit("event1", "hello"); // logs "event1 hello"
 
@@ -54,7 +60,7 @@ remitter.destroy(); // removes all listeners and dispose tapped events
 
 ### Remit
 
-You may tap into other events which will be lazy-executed when listener count of an event name grows from 0 to 1 and be disposed when listener count drops from 1 to 0.
+You may tap into other events easily with `remit`. It is lazy-executed when listener count of the event name grows from 0 to 1. It is disposed when listener count of the event name drops from 1 to 0.
 
 ```js
 remitter.remit("event1", () => {
