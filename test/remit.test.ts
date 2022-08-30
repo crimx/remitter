@@ -190,5 +190,65 @@ describe("remit", () => {
     expect(spy1).toHaveBeenCalledTimes(1);
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    remitter.destroy();
+
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy1Disposer).toHaveBeenCalledTimes(1);
+    expect(spy2).toHaveBeenCalledTimes(0);
+  });
+
+  it("should catch error on listener", () => {
+    const consoleErrorMock = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => void 0);
+
+    const error1 = new Error("error1");
+    const error2 = new Error("error2");
+    const error3 = new Error("error3");
+
+    const remitter = new Remitter<{
+      event1: number;
+      event2: number;
+      event3: number;
+    }>();
+    remitter.on("event1", () => {
+      throw error1;
+    });
+    remitter.remit("event2", () => {
+      throw error2;
+    });
+    remitter.remit("event3", () => {
+      return () => {
+        throw error3;
+      };
+    });
+
+    expect(consoleErrorMock).toHaveBeenCalledTimes(0);
+
+    remitter.emit("event1", 1);
+
+    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
+    expect(consoleErrorMock).lastCalledWith(error1);
+
+    consoleErrorMock.mockClear();
+
+    remitter.on("event2", () => void 0);
+
+    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
+    expect(consoleErrorMock).lastCalledWith(error2);
+
+    consoleErrorMock.mockClear();
+
+    remitter.on("event3", () => void 0);
+
+    expect(consoleErrorMock).toHaveBeenCalledTimes(0);
+
+    remitter.destroy();
+
+    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
+    expect(consoleErrorMock).lastCalledWith(error3);
+
+    consoleErrorMock.mockRestore();
   });
 });

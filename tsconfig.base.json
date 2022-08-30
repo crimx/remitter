@@ -7,7 +7,7 @@
     "noUnusedParameters": true,
     "noImplicitOverride": true,
     "module": "ESNext",
-    "lib": ["ESNext"],
+    "target": "ESNext",
     "types": ["vite/client"],
     "moduleResolution": "Node",
     "esModuleInterop": true,

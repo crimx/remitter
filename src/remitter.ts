@@ -45,9 +45,16 @@ export class Remitter<TConfig = any> {
     eventName: TEventName,
     eventData?: TConfig[TEventName]
   ): void {
-    this.listeners_
-      .get(eventName)
-      ?.forEach(listener => listener(eventData as TConfig[TEventName]));
+    const listeners = this.listeners_.get(eventName);
+    if (listeners) {
+      for (const listener of listeners) {
+        try {
+          listener(eventData as TConfig[TEventName]);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
   }
 
   /**
@@ -65,7 +72,9 @@ export class Remitter<TConfig = any> {
     listeners.add(listener);
 
     if (listeners.size === 1) {
-      this.relayListeners_.forEach(listener => listener.start_(eventName));
+      for (const listener of this.relayListeners_) {
+        listener.start_(eventName);
+      }
     }
 
     return () => {
@@ -85,7 +94,9 @@ export class Remitter<TConfig = any> {
       const result = listeners.delete(listener);
       if (listeners.size <= 0) {
         this.listeners_.delete(eventName);
-        this.relayListeners_.forEach(listener => listener.dispose_(eventName));
+        for (const listener of this.relayListeners_) {
+          listener.dispose_(eventName);
+        }
       }
       return result;
     }
@@ -114,9 +125,9 @@ export class Remitter<TConfig = any> {
       return this.listeners_.get(eventName)?.size || 0;
     } else {
       let count = 0;
-      this.listeners_.forEach(listeners => {
+      for (const listeners of this.listeners_.values()) {
         count += listeners.size;
-      });
+      }
       return count;
     }
   }
@@ -137,30 +148,38 @@ export class Remitter<TConfig = any> {
     const relayListener: RelayListener<TEventName> = {
       start_: name => {
         if (name === eventName) {
-          disposer = start(this);
+          try {
+            disposer = start(this);
+          } catch (e) {
+            console.error(e);
+          }
         }
       },
       dispose_: name => {
         if (disposer && (!name || name === eventName)) {
-          disposer();
+          try {
+            disposer();
+          } catch (e) {
+            console.error(e);
+          }
         }
       },
     };
     this.relayListeners_.add(relayListener);
-    if ((this.listeners_.get(eventName)?.size || 0) > 0) {
-      disposer = start(this);
+    if (this.listeners_.get(eventName)?.size) {
+      relayListener.start_(eventName);
     }
     return () => {
       this.relayListeners_.delete(relayListener);
-      if (disposer) {
-        disposer();
-      }
+      relayListener.dispose_();
     };
   }
 
   public destroy(): void {
     this.clear();
-    this.relayListeners_.forEach(listener => listener.dispose_());
+    for (const listener of this.relayListeners_) {
+      listener.dispose_();
+    }
     this.relayListeners_.clear();
   }
 }
