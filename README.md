@@ -13,7 +13,7 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-brightgreen.svg?maxAge=2592000)](https://conventionalcommits.org)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-A tiny TypeScript friendly event emitter that supports easy re-emitting events.
+A tiny TypeScript friendly event emitter that supports lazy re-emitting events form other sources.
 
 ## Install
 
@@ -63,31 +63,44 @@ remitter.destroy(); // removes all listeners and dispose tapped events
 You may tap into other events easily with `remit`. It is lazy-executed when listener count of the event name grows from 0 to 1. It is disposed when listener count of the event name drops from 1 to 0.
 
 ```js
-remitter.remit("event1", () => {
-  const handler = e => {
-    remitter.emit("event1", e.value + 1);
+remitter.remit("cursor", () => {
+  const handler = ev => {
+    remitter.emit("cursor", { x: ev.clientX, y: ev.clientY });
   };
-  otherEvent.addListener(handler);
+
+  window.addEventListener("mousemove", handler);
+
   return () => {
-    otherEvent.removeListener(handler);
+    window.removeListener("mousemove", handler);
   };
 });
+
+// Remit callback does not execute until the first "cursor" listener is added
+remitter.on("cursor", value => {
+  console.log("cursor", value);
+});
+
+// Remit callback is disposed when no listener on the
+// "cursor" event. (`window.removeListener` triggered)
+remitter.clear("cursor");
 ```
 
 The callback function can also be a pure function.
 
 ```js
-const tapToOtherEvent = remitter => {
-  const handler = e => {
-    remitter.emit("event1", e.value + 1);
+const myCursorEvent = remitter => {
+  const handler = ev => {
+    remitter.emit("cursor", { x: ev.clientX, y: ev.clientY });
   };
-  otherEvent.addListener(handler);
+
+  window.addEventListener("mousemove", handler);
+
   return () => {
-    otherEvent.removeListener(handler);
+    window.removeListener("mousemove", handler);
   };
 };
 
-remitter.remit("event1", tapToOtherEvent);
+remitter.remit("cursor", myCursorEvent);
 ```
 
 ### Acknowledgment
