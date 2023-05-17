@@ -10,7 +10,11 @@
     "preinstall",
     "typedoc",
     "vite",
-    "vitest"
+    "vitest",
+    "treeshake",
+    "tsup",
+    "typedoc",
+    "yoctocolors"
   ],
   "ignorePaths": [
     "**/coverage/**",

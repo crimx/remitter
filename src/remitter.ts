@@ -207,10 +207,10 @@ export class Remitter<TConfig = any> {
   }
 
   /** @deprecated use `dispose` instead */
-  public destroy = this.dispose
+  public destroy = this.dispose;
 }
 
 export type ReadonlyRemitter<TConfig = any> = Pick<
   Remitter<TConfig>,
-  "dispose"| "destroy" | "count" | "on" | "off" | "clear"
+  "dispose" | "destroy" | "count" | "on" | "off" | "clear"
 >;
