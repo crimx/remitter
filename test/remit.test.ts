@@ -191,7 +191,7 @@ describe("remit", () => {
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
 
-    remitter.destroy();
+    remitter.dispose();
 
     expect(spy1).toHaveBeenCalledTimes(1);
     expect(spy1Disposer).toHaveBeenCalledTimes(1);
@@ -244,7 +244,7 @@ describe("remit", () => {
 
     expect(consoleErrorMock).toHaveBeenCalledTimes(0);
 
-    remitter.destroy();
+    remitter.dispose();
 
     expect(consoleErrorMock).toHaveBeenCalledTimes(1);
     expect(consoleErrorMock).lastCalledWith(error3);

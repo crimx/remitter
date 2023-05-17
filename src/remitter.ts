@@ -198,16 +198,19 @@ export class Remitter<TConfig = any> {
     };
   }
 
-  public destroy(): void {
+  public dispose(): void {
     this.clear();
     for (const listener of this.relayListeners_) {
       listener.dispose_();
     }
     this.relayListeners_.clear();
   }
+
+  /** @deprecated use `dispose` instead */
+  public destroy = this.dispose
 }
 
 export type ReadonlyRemitter<TConfig = any> = Pick<
   Remitter<TConfig>,
-  "destroy" | "count" | "on" | "off" | "clear"
+  "dispose"| "destroy" | "count" | "on" | "off" | "clear"
 >;

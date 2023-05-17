@@ -188,7 +188,7 @@ describe("basic usage", () => {
     expect(spy).toHaveBeenCalledTimes(0);
   });
 
-  it("should destroy", () => {
+  it("should release all listeners on disposed", () => {
     const spies1 = Array.from({ length: 10 }).map(() => vi.fn());
     const spies2 = Array.from({ length: 20 }).map(() => vi.fn());
 
@@ -223,7 +223,8 @@ describe("basic usage", () => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
 
-    remitter.destroy();
+    expect(remitter.dispose).toBe(remitter.destroy);
+    remitter.dispose();
     expect(remitter.count()).toBe(0);
     expect(remitter.count("event1")).toBe(0);
     expect(remitter.count("event2")).toBe(0);

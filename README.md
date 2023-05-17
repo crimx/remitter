@@ -55,7 +55,7 @@ remitter.emit("event1", "world"); // nothing logs
 remitter.clear("event2"); // remove all listeners for event2
 remitter.count(); // 0
 
-remitter.destroy(); // removes all listeners and dispose tapped events
+remitter.dispose(); // removes all listeners and dispose tapped events
 ```
 
 ### Remit
