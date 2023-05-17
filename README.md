@@ -6,9 +6,9 @@
 
 [![Docs](https://img.shields.io/badge/Docs-read-%23fdf9f5)](https://crimx.github.io/remitter)
 [![Build Status](https://github.com/crimx/remitter/actions/workflows/build.yml/badge.svg)](https://github.com/crimx/remitter/actions/workflows/build.yml)
+[![Coverage Status](https://img.shields.io/codeclimate/coverage/crimx/remitter)](https://codeclimate.com/github/crimx/remitter)
 
 [![npm-version](https://img.shields.io/npm/v/remitter.svg)](https://www.npmjs.com/package/remitter)
-[![Coverage Status](https://img.shields.io/codeclimate/coverage/crimx/remitter)](https://codeclimate.com/github/crimx/remitter)
 [![minified-size](https://img.shields.io/bundlephobia/minzip/remitter)](https://bundlephobia.com/package/remitter)
 [![no-dependencies](https://img.shields.io/badge/dependencies-none-success)](https://bundlejs.com/?q=remitter)
 [![tree-shakable](https://img.shields.io/badge/tree-shakable-success)](https://bundlejs.com/?q=remitter)
