@@ -1,13 +1,11 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["./src/index.ts"],
+  "entryPoints": ["./src/remitter.ts"],
   "out": "docs",
-  "visibilityFilters": {
-    "protected": false,
-    "private": false,
-    "inherited": true,
-    "external": false
-  },
+  "visibilityFilters": {},
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
   "cleanOutputDir": true,
   "includeVersion": true,
   "hideGenerator": true

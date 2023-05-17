@@ -198,6 +198,9 @@ export class Remitter<TConfig = any> {
     };
   }
 
+  /**
+   * Dispose all listeners.
+   */
   public dispose(): void {
     this.clear();
     for (const listener of this.relayListeners_) {
@@ -206,7 +209,10 @@ export class Remitter<TConfig = any> {
     this.relayListeners_.clear();
   }
 
-  /** @deprecated use `dispose` instead */
+  /**
+   * @deprecated Use `dispose` instead.
+   * @internal
+   */
   public destroy = this.dispose;
 }
 
