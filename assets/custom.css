@@ -1,0 +1,6 @@
+@media (min-width: 1025px) {
+  .tsd-hierarchy,
+  .tsd-index-group {
+    display: none;
+  }
+}
