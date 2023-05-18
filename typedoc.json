@@ -1,6 +1,7 @@
 {
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["./src/remitter.ts"],
+  "customCss": "./assets/docs.css",
   "out": "docs",
   "visibilityFilters": {},
   "excludePrivate": true,
