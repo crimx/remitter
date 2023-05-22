@@ -95,7 +95,7 @@ export class Remitter<TConfig = any> {
     listener: RemitterListener<TConfig, TEventName>
   ): RemitterDisposer {
     const onceListener = (eventData => {
-      this.off(eventName, listener);
+      this.off(eventName, onceListener);
       return listener(eventData);
     }) as RemitterListener<TConfig, TEventName>;
     this.onceListeners_ = this.onceListeners_ || new WeakMap();
@@ -112,9 +112,12 @@ export class Remitter<TConfig = any> {
   ): boolean {
     const listeners = this.listeners_.get(eventName);
     if (listeners) {
-      const result = listeners.delete(
-        this.onceListeners_?.get(listener) || listener
-      );
+      let result = listeners.delete(listener);
+      const onceListener =
+        this.onceListeners_ && this.onceListeners_.get(listener);
+      if (onceListener) {
+        result = listeners.delete(onceListener) || result;
+      }
       if (listeners.size <= 0) {
         this.listeners_.delete(eventName);
         for (const listener of this.relayListeners_) {

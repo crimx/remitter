@@ -238,4 +238,52 @@ describe("basic usage", () => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
   });
+
+  it("should add same listener for both normal and once", () => {
+    const spy = vi.fn();
+
+    interface RemitterConfig {
+      event1: number;
+    }
+    const remitter = new Remitter<RemitterConfig>();
+    remitter.on("event1", spy);
+    remitter.once("event1", spy);
+
+    expect(remitter.count()).toBe(2);
+    expect(remitter.count("event1")).toBe(2);
+    expect(spy).toHaveBeenCalledTimes(0);
+
+    remitter.emit("event1", 1);
+    expect(remitter.count()).toBe(1);
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).lastCalledWith(1);
+
+    spy.mockClear();
+
+    remitter.emit("event1", 2);
+    expect(remitter.count()).toBe(1);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).lastCalledWith(2);
+  });
+
+  it("should off both normal and once listener if they are the same", () => {
+    const spy = vi.fn();
+
+    interface RemitterConfig {
+      event1: number;
+    }
+    const remitter = new Remitter<RemitterConfig>();
+    remitter.on("event1", spy);
+    remitter.once("event1", spy);
+
+    expect(remitter.count()).toBe(2);
+    expect(remitter.count("event1")).toBe(2);
+    expect(spy).toHaveBeenCalledTimes(0);
+
+    remitter.off("event1", spy);
+
+    expect(remitter.count()).toBe(0);
+    expect(remitter.count("event1")).toBe(0);
+    expect(spy).toHaveBeenCalledTimes(0);
+  });
 });
