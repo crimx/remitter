@@ -1,6 +1,7 @@
 {
   "language": "en",
   "words": [
+    "abortable",
     "coverallsapp",
     "CRIMX",
     "Dataless",
@@ -8,12 +9,12 @@
     "lcov",
     "pnpm",
     "preinstall",
-    "typedoc",
-    "vite",
-    "vitest",
     "treeshake",
     "tsup",
     "typedoc",
+    "vite",
+    "vitest",
+    "wopjs",
     "yoctocolors"
   ],
   "ignorePaths": [

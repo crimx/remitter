@@ -1,3 +1,5 @@
+import { abortable } from "@wopjs/disposable";
+
 type RemitterDatalessEventName<TConfig> = {
   [EventName in keyof TConfig]: TConfig[EventName] extends
     | undefined
@@ -94,13 +96,16 @@ export class Remitter<TConfig = any> {
     eventName: TEventName,
     listener: RemitterListener<TConfig, TEventName>
   ): RemitterDisposer {
-    const onceListener = (eventData => {
-      this.off(eventName, onceListener);
-      return listener(eventData);
-    }) as RemitterListener<TConfig, TEventName>;
-    this.onceListeners_ = this.onceListeners_ || new WeakMap();
-    this.onceListeners_.set(listener, onceListener);
-    return this.on(eventName, onceListener);
+    const off = abortable(() => this.off(eventName, onceListener));
+    const onceListener = (eventData => (
+      off(), listener(eventData)
+    )) as RemitterListener<TConfig, TEventName>;
+    (this.onceListeners_ || (this.onceListeners_ = new WeakMap())).set(
+      listener,
+      onceListener
+    );
+    this.on(eventName, onceListener);
+    return off;
   }
 
   /**
