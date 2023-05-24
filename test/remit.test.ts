@@ -46,7 +46,7 @@ describe("remit", () => {
     expect(spy2).toHaveBeenCalledTimes(0);
     expect(spy2Disposer).toHaveBeenCalledTimes(0);
 
-    expect(spy1Disposer).lastCalledWith();
+    expect(spy1Disposer).lastCalledWith(undefined);
     expect(spy3).toHaveBeenCalledTimes(0);
   });
 

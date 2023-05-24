@@ -1,4 +1,5 @@
 import { abortable } from "@wopjs/disposable";
+import { tryCall } from "./utils";
 
 type RemitterDatalessEventName<TConfig> = {
   [EventName in keyof TConfig]: TConfig[EventName] extends
@@ -55,11 +56,7 @@ export class Remitter<TConfig = any> {
     const listeners = this.listeners_.get(eventName);
     if (listeners) {
       for (const listener of listeners) {
-        try {
-          listener(eventData as TConfig[TEventName]);
-        } catch (e) {
-          console.error(e);
-        }
+        tryCall(listener, eventData as TConfig[TEventName]);
       }
     }
   }
@@ -179,20 +176,12 @@ export class Remitter<TConfig = any> {
     const relayListener: RelayListener<TEventName> = {
       start_: name => {
         if (name === eventName) {
-          try {
-            disposer = start(this);
-          } catch (e) {
-            console.error(e);
-          }
+          disposer = tryCall(start, this);
         }
       },
       dispose_: name => {
         if (disposer && (!name || name === eventName)) {
-          try {
-            disposer();
-          } catch (e) {
-            console.error(e);
-          }
+          tryCall(disposer);
         }
       },
     };
