@@ -1,35 +1,59 @@
 import { abortable } from "@wopjs/disposable";
 import { tryCall } from "./utils";
 
-type RemitterDatalessEventName<TConfig> = {
-  [EventName in keyof TConfig]: TConfig[EventName] extends
+type Fn = (...args: any[]) => any;
+
+/**
+ * A symbol that can be used as an event name to listen to all events.
+ */
+export const ANY_EVENT = Symbol("any");
+
+export type AnyEventData<
+  TConfig,
+  TEventName extends keyof TConfig = keyof TConfig
+> = { event: TEventName; data: TConfig[TEventName] };
+
+export type AnyRemitterListener<TConfig> = (
+  data: AnyEventData<TConfig>
+) => void;
+
+export type RemitterConfig<TConfig> = TConfig & {
+  [name in typeof ANY_EVENT]: AnyEventData<TConfig>;
+};
+
+export type RemitterDatalessEventName<TConfig> = {
+  [EventName in keyof RemitterConfig<TConfig>]: RemitterConfig<TConfig>[EventName] extends
     | undefined
     | void
     | never
     ? EventName
     : never;
-}[keyof TConfig];
+}[keyof RemitterConfig<TConfig>];
 
 type RelayListener<TEventName = any> = {
   start_: (eventName: TEventName) => void;
   dispose_: (eventName?: TEventName) => void;
 };
 
-export type RemitterEventNames<TConfig> = Extract<keyof TConfig, string>;
+export type RemitterEventNames<TConfig> = keyof TConfig;
+
+export type AllRemitterEventNames<TConfig> = keyof TConfig | typeof ANY_EVENT;
 
 export type RemitterListener<
   TConfig,
-  TEventName extends RemitterEventNames<TConfig> = RemitterEventNames<TConfig>
-> = TConfig[TEventName] extends undefined | void | never
+  TEventName extends RemitterEventNames<
+    RemitterConfig<TConfig>
+  > = RemitterEventNames<RemitterConfig<TConfig>>
+> = RemitterConfig<TConfig>[TEventName] extends undefined | void | never
   ? () => void
-  : (eventData: TConfig[TEventName]) => void;
+  : (eventData: RemitterConfig<TConfig>[TEventName]) => void;
 
 export type RemitterDisposer = () => void;
 
 export class Remitter<TConfig = any> {
   private readonly listeners_ = new Map<
-    RemitterEventNames<TConfig>,
-    Set<RemitterListener<TConfig, any>>
+    AllRemitterEventNames<TConfig>,
+    Set<Fn>
   >();
 
   private readonly relayListeners_ = new Set<RelayListener>();
@@ -45,25 +69,45 @@ export class Remitter<TConfig = any> {
   public emit<TEventName extends RemitterDatalessEventName<TConfig>>(
     eventName: TEventName
   ): void;
+  /**
+   * Emit an event with payload to `eventName` listeners.
+   */
   public emit<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
     eventData: TConfig[TEventName]
   ): void;
   public emit<TEventName extends RemitterEventNames<TConfig>>(
-    eventName: TEventName,
-    eventData?: TConfig[TEventName]
+    event: TEventName,
+    data?: TConfig[TEventName]
   ): void {
-    const listeners = this.listeners_.get(eventName);
+    const listeners = this.listeners_.get(event);
     if (listeners) {
       for (const listener of listeners) {
-        tryCall(listener, eventData as TConfig[TEventName]);
+        tryCall(listener, data as RemitterConfig<TConfig>[TEventName]);
       }
+    }
+    if (event !== ANY_EVENT && this.count(ANY_EVENT)) {
+      (this as Remitter<RemitterConfig<TConfig>>).emit(ANY_EVENT, {
+        event,
+        data,
+      } as any);
     }
   }
 
   /**
+   * Add an `ANY_EVENT_NAME` listener to receive all events.
+   */
+  public on(
+    eventName: typeof ANY_EVENT,
+    listener: AnyRemitterListener<TConfig>
+  ): RemitterDisposer;
+  /**
    * Add a listener to the eventName.
    */
+  public on<TEventName extends RemitterEventNames<TConfig>>(
+    eventName: TEventName,
+    listener: RemitterListener<TConfig, TEventName>
+  ): RemitterDisposer;
   public on<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
     listener: RemitterListener<TConfig, TEventName>
@@ -87,8 +131,19 @@ export class Remitter<TConfig = any> {
   }
 
   /**
+   * Add a one-time listener to `ANY_EVENT_NAME` to receive all events..
+   */
+  public once(
+    eventName: typeof ANY_EVENT,
+    listener: AnyRemitterListener<TConfig>
+  ): RemitterDisposer;
+  /**
    * Add a one-time listener to the eventName.
    */
+  public once<TEventName extends RemitterEventNames<TConfig>>(
+    eventName: TEventName,
+    listener: RemitterListener<TConfig, TEventName>
+  ): RemitterDisposer;
   public once<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
     listener: RemitterListener<TConfig, TEventName>
@@ -108,15 +163,14 @@ export class Remitter<TConfig = any> {
   /**
    * Remove a listener from the eventName.
    */
-  public off<TEventName extends RemitterEventNames<TConfig>>(
+  public off<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName: TEventName,
-    listener: RemitterListener<TConfig, TEventName>
+    listener: Fn
   ): boolean {
     const listeners = this.listeners_.get(eventName);
     if (listeners) {
       let result = listeners.delete(listener);
-      const onceListener =
-        this.onceListeners_ && this.onceListeners_.get(listener);
+      const onceListener = this.onceListeners_?.get(listener);
       if (onceListener) {
         result = listeners.delete(onceListener) || result;
       }
@@ -131,7 +185,7 @@ export class Remitter<TConfig = any> {
     return false;
   }
 
-  public clear<TEventName extends RemitterEventNames<TConfig>>(
+  public clear<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName?: TEventName
   ): void {
     if (eventName) {
@@ -146,7 +200,7 @@ export class Remitter<TConfig = any> {
    * @param eventName If empty returns the number of listeners for all events.
    * @returns
    */
-  public count<TEventName extends RemitterEventNames<TConfig>>(
+  public count<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName?: TEventName
   ): number {
     if (eventName) {
@@ -205,15 +259,9 @@ export class Remitter<TConfig = any> {
     }
     this.relayListeners_.clear();
   }
-
-  /**
-   * @deprecated Use `dispose` instead.
-   * @internal
-   */
-  public destroy = this.dispose;
 }
 
 export type ReadonlyRemitter<TConfig = any> = Pick<
   Remitter<TConfig>,
-  "dispose" | "destroy" | "count" | "on" | "off" | "clear"
+  "dispose" | "count" | "on" | "off" | "clear"
 >;

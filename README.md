@@ -27,12 +27,12 @@ npm add remitter
 ```ts
 import { Remitter } from "remitter";
 
-interface EventConfig {
+interface EventData {
   event1: string;
   event2: void;
 }
 
-const remitter = new Remitter<EventConfig>();
+const remitter = new Remitter<EventData>();
 
 const disposer = remitter.on("event1", value => {
   console.log("event1", value);
@@ -57,6 +57,26 @@ remitter.clear("event2"); // remove all listeners for event2
 remitter.count(); // 0
 
 remitter.dispose(); // removes all listeners and dispose tapped events
+```
+
+### Listen to any event
+
+```ts
+import { ANY_EVENT, Remitter } from "remitter";
+
+interface EventData {
+  event1: string;
+  event2: string;
+}
+
+const remitter = new Remitter<EventData>();
+
+remitter.on(ANY_EVENT, ({ event, data }) => {
+  console.log(event, data);
+});
+
+remitter.emit("event1", "hello"); // logs "event1 hello"
+remitter.emit("event2", "world"); // logs "event2 world"
 ```
 
 ### Remit

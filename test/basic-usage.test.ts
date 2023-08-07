@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { Remitter } from "../src/remitter";
+import { ANY_EVENT, Remitter } from "../src/remitter";
 
 describe("basic usage", () => {
   it("should add listener", () => {
@@ -78,6 +78,27 @@ describe("basic usage", () => {
 
     // @ts-expect-error - no event2
     expect(remitter.off("event2", spy)).toBe(false);
+  });
+
+  it("should remove once listener", () => {
+    const spy = vi.fn();
+
+    interface RemitterConfig {
+      event1: number;
+    }
+    const remitter = new Remitter<RemitterConfig>();
+    remitter.once("event1", spy);
+
+    expect(remitter.count()).toBe(1);
+    expect(remitter.count("event1")).toBe(1);
+    expect(spy).toHaveBeenCalledTimes(0);
+
+    expect(remitter.off("event1", spy)).toBe(true);
+    expect(remitter.count()).toBe(0);
+    expect(remitter.off("event1", spy)).toBe(false);
+
+    remitter.emit("event1", 1);
+    expect(spy).toHaveBeenCalledTimes(0);
   });
 
   it("should clear listeners of a event name", () => {
@@ -188,6 +209,35 @@ describe("basic usage", () => {
     expect(spy).toHaveBeenCalledTimes(0);
   });
 
+  it("should dispose listener", () => {
+    const spy1 = vi.fn();
+    const spy2 = vi.fn();
+
+    interface RemitterConfig {
+      event1: number;
+    }
+    const remitter = new Remitter<RemitterConfig>();
+    const disposer1 = remitter.on("event1", spy1);
+    const disposer2 = remitter.once("event1", spy2);
+
+    expect(remitter.count()).toBe(2);
+    expect(remitter.count("event1")).toBe(2);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+
+    disposer2();
+    expect(remitter.count()).toBe(1);
+    expect(remitter.off("event1", spy2)).toBe(false);
+
+    disposer1();
+    expect(remitter.count()).toBe(0);
+    expect(remitter.off("event1", spy1)).toBe(false);
+
+    remitter.emit("event1", 1);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+  });
+
   it("should release all listeners on disposed", () => {
     const spies1 = Array.from({ length: 10 }).map(() => vi.fn());
     const spies2 = Array.from({ length: 20 }).map(() => vi.fn());
@@ -223,7 +273,6 @@ describe("basic usage", () => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
 
-    expect(remitter.dispose).toBe(remitter.destroy);
     remitter.dispose();
     expect(remitter.count()).toBe(0);
     expect(remitter.count("event1")).toBe(0);
@@ -285,5 +334,33 @@ describe("basic usage", () => {
     expect(remitter.count()).toBe(0);
     expect(remitter.count("event1")).toBe(0);
     expect(spy).toHaveBeenCalledTimes(0);
+  });
+
+  it("should listen to any event", () => {
+    const spy = vi.fn();
+
+    interface RemitterConfig {
+      event1: number;
+    }
+    const remitter = new Remitter<RemitterConfig>();
+    remitter.on(ANY_EVENT, spy);
+    remitter.once(ANY_EVENT, spy);
+
+    expect(remitter.count("event1")).toBe(0);
+    expect(remitter.count()).toBe(2);
+    expect(remitter.count(ANY_EVENT)).toBe(2);
+    expect(spy).toHaveBeenCalledTimes(0);
+
+    remitter.emit("event1", 1);
+    expect(remitter.count()).toBe(1);
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).lastCalledWith({ event: "event1", data: 1 });
+
+    spy.mockClear();
+
+    remitter.emit("event1", 2);
+    expect(remitter.count()).toBe(1);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).lastCalledWith({ event: "event1", data: 2 });
   });
 });
