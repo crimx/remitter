@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.12](https://github.com/crimx/remitter/compare/v0.2.11...v0.2.12) (2023-08-07)
+
+
+### Features
+
+* **remitter:** add ANY_EVENT ([7fdc13e](https://github.com/crimx/remitter/commit/7fdc13eeae637bea3fdfbca5996e26040671ef78))
+
 ### [0.2.11](https://github.com/crimx/remitter/compare/v0.2.10...v0.2.11) (2023-05-22)
 
 
