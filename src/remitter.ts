@@ -1,54 +1,23 @@
+import type {
+  AllRemitterEventNames,
+  RemitterListener,
+  RemitterDatalessEventName,
+  RemitterEventNames,
+  RemitterConfig,
+  AnyRemitterListener,
+  RemitterDisposer,
+  Fn,
+} from "./interface";
+import {
+  tryStartAllRelay,
+  type RelayListener,
+  tryStopAllRelay,
+  stopRelay,
+  startRelay,
+} from "./relay";
 import { abortable } from "@wopjs/disposable";
 import { tryCall } from "./utils";
-
-type Fn = (...args: any[]) => any;
-
-/**
- * A symbol that can be used as an event name to listen to all events.
- */
-export const ANY_EVENT = Symbol("any");
-
-export type AnyEventData<
-  TConfig,
-  TEventName extends keyof TConfig = keyof TConfig
-> = { event: TEventName; data: TConfig[TEventName] };
-
-export type AnyRemitterListener<TConfig> = (
-  data: AnyEventData<TConfig>
-) => void;
-
-export type RemitterConfig<TConfig> = TConfig & {
-  [name in typeof ANY_EVENT]: AnyEventData<TConfig>;
-};
-
-export type RemitterDatalessEventName<TConfig> = {
-  [EventName in keyof RemitterConfig<TConfig>]: RemitterConfig<TConfig>[EventName] extends
-    | undefined
-    | void
-    | never
-    ? EventName
-    : never;
-}[keyof RemitterConfig<TConfig>];
-
-type RelayListener<TEventName = any> = {
-  start_: (eventName: TEventName) => void;
-  dispose_: (eventName?: TEventName) => void;
-};
-
-export type RemitterEventNames<TConfig> = keyof TConfig;
-
-export type AllRemitterEventNames<TConfig> = keyof TConfig | typeof ANY_EVENT;
-
-export type RemitterListener<
-  TConfig,
-  TEventName extends RemitterEventNames<
-    RemitterConfig<TConfig>
-  > = RemitterEventNames<RemitterConfig<TConfig>>
-> = RemitterConfig<TConfig>[TEventName] extends undefined | void | never
-  ? () => void
-  : (eventData: RemitterConfig<TConfig>[TEventName]) => void;
-
-export type RemitterDisposer = () => void;
+import { ANY_EVENT } from "./constants";
 
 export class Remitter<TConfig = any> {
   private readonly listeners_ = new Map<
@@ -120,9 +89,7 @@ export class Remitter<TConfig = any> {
     listeners.add(listener);
 
     if (listeners.size === 1) {
-      for (const listener of this.relayListeners_) {
-        listener.start_(eventName);
-      }
+      tryStartAllRelay(this.relayListeners_, this);
     }
 
     return () => {
@@ -176,9 +143,7 @@ export class Remitter<TConfig = any> {
       }
       if (listeners.size <= 0) {
         this.listeners_.delete(eventName);
-        for (const listener of this.relayListeners_) {
-          listener.dispose_(eventName);
-        }
+        tryStopAllRelay(this.relayListeners_, this);
       }
       return result;
     }
@@ -193,6 +158,7 @@ export class Remitter<TConfig = any> {
     } else {
       this.listeners_.clear();
     }
+    tryStopAllRelay(this.relayListeners_, this);
   }
 
   /**
@@ -219,33 +185,26 @@ export class Remitter<TConfig = any> {
    * Dispose the side effect when the eventName has no listeners.
    * For example tap into other events.
    *
+   * remit `ANY_EVENT` will be started when any event is listened.
+   *
    * @param eventName
    * @param start A function that is called when listener count if `eventName` grows from 0 to 1. Returns a disposer when listener count if `eventName` drops from 1 to 0.
    */
-  public remit<TEventName extends RemitterEventNames<TConfig>>(
+  public remit<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName: TEventName,
     start: (remitter: Remitter<TConfig>) => RemitterDisposer
   ): RemitterDisposer {
-    let disposer: RemitterDisposer | undefined;
-    const relayListener: RelayListener<TEventName> = {
-      start_: name => {
-        if (name === eventName) {
-          disposer = tryCall(start, this);
-        }
-      },
-      dispose_: name => {
-        if (disposer && (!name || name === eventName)) {
-          tryCall(disposer);
-        }
-      },
+    const relayListener: RelayListener<TConfig> = {
+      start_: start,
+      eventName_: eventName,
     };
     this.relayListeners_.add(relayListener);
-    if (this.listeners_.get(eventName)?.size) {
-      relayListener.start_(eventName);
+    if (this.count(eventName) > 0 || this.count(ANY_EVENT) > 0) {
+      startRelay(relayListener, this);
     }
     return () => {
       this.relayListeners_.delete(relayListener);
-      relayListener.dispose_();
+      stopRelay(relayListener);
     };
   }
 
@@ -254,9 +213,6 @@ export class Remitter<TConfig = any> {
    */
   public dispose(): void {
     this.clear();
-    for (const listener of this.relayListeners_) {
-      listener.dispose_();
-    }
     this.relayListeners_.clear();
   }
 }

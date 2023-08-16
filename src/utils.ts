@@ -15,3 +15,7 @@ export const tryCall: TryCall = <TReturn = void, TArg = any>(
     console.error(e);
   }
 };
+
+export const noop = () => {
+  /* empty */
+};

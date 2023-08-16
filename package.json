@@ -7,9 +7,9 @@
   "author": "CRIMX <straybugs@gmail.com> (https://github.com/crimx/)",
   "repository": "crimx/remitter",
   "sideEffects": false,
-  "main": "./dist/remitter.js",
-  "module": "./dist/remitter.mjs",
-  "types": "./dist/remitter.d.ts",
+  "main": "./dist/main.js",
+  "module": "./dist/main.mjs",
+  "types": "./dist/main.d.ts",
   "files": [
     "src",
     "dist"
@@ -20,7 +20,7 @@
     "docs": "typedoc --options typedoc.json",
     "build": "tsup",
     "test": "vitest",
-    "coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage",
     "build:min": "cross-env NODE_ENV=production MINIFY=true tsup && node scripts/gzip.mjs",
     "release": "standard-version"
   },

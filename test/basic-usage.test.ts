@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { ANY_EVENT, Remitter } from "../src/remitter";
+import { ANY_EVENT, Remitter } from "../src/main";
 
 describe("basic usage", () => {
   it("should add listener", () => {

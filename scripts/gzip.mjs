@@ -4,12 +4,12 @@ import prettyBytes from "pretty-bytes";
 
 console.log();
 console.log(
-  `${gray("gzip")} dist/remitter.mjs  ${green(
-    prettyBytes(gzipSizeFromFileSync("dist/remitter.mjs"))
+  `${gray("gzip")} dist/main.mjs  ${green(
+    prettyBytes(gzipSizeFromFileSync("dist/main.mjs"))
   )}`
 );
 console.log(
-  `${gray("gzip")} dist/remitter.js  ${green(
-    prettyBytes(gzipSizeFromFileSync("dist/remitter.js"))
+  `${gray("gzip")} dist/main.js  ${green(
+    prettyBytes(gzipSizeFromFileSync("dist/main.js"))
   )}`
 );

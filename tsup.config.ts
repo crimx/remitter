@@ -2,7 +2,7 @@ import { defineConfig } from "tsup";
 import mangleCache from "./mangle-cache.json";
 
 export default defineConfig({
-  entry: ["src/remitter.ts"],
+  entry: ["src/main.ts"],
   format: ["cjs", "esm"],
   target: "esnext",
   clean: true,

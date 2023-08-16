@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { Remitter } from "../src/remitter";
+import { ANY_EVENT, Remitter } from "../src/main";
 
 describe("remit", () => {
   it("should run prepare when first listener is added", () => {
@@ -250,5 +250,82 @@ describe("remit", () => {
     expect(consoleErrorMock).lastCalledWith(error3);
 
     consoleErrorMock.mockRestore();
+  });
+
+  it.only("should remit by all emitter listeners", () => {
+    const spyRemitDisposer = vi.fn();
+    const spyRemit = vi.fn(() => spyRemitDisposer);
+
+    const spy1Disposer = vi.fn();
+    const spy1 = vi.fn(() => spy1Disposer);
+
+    const spy2Disposer = vi.fn();
+    const spy2 = vi.fn(() => spy2Disposer);
+
+    interface EventData {
+      event1: number;
+      event2: string;
+    }
+    const remitter = new Remitter<EventData>();
+
+    remitter.remit(ANY_EVENT, spyRemit);
+
+    expect(spyRemit).toHaveBeenCalledTimes(0);
+    expect(spyRemitDisposer).toHaveBeenCalledTimes(0);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(spy2Disposer).toHaveBeenCalledTimes(0);
+
+    remitter.emit("event1", 1);
+
+    expect(spyRemit).toHaveBeenCalledTimes(0);
+    expect(spyRemitDisposer).toHaveBeenCalledTimes(0);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(spy2Disposer).toHaveBeenCalledTimes(0);
+
+    remitter.on("event1", spy1);
+
+    expect(spyRemit).toHaveBeenCalledTimes(1);
+    expect(spyRemit).lastCalledWith(remitter);
+    expect(spyRemitDisposer).toHaveBeenCalledTimes(0);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(spy2Disposer).toHaveBeenCalledTimes(0);
+
+    spyRemit.mockClear();
+
+    remitter.on("event2", spy2);
+
+    expect(spyRemit).toHaveBeenCalledTimes(0);
+    expect(spyRemitDisposer).toHaveBeenCalledTimes(0);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(spy2Disposer).toHaveBeenCalledTimes(0);
+
+    spyRemit.mockClear();
+
+    remitter.off("event1", spy1);
+
+    expect(spyRemit).toHaveBeenCalledTimes(0);
+    expect(spyRemitDisposer).toHaveBeenCalledTimes(0);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(spy2Disposer).toHaveBeenCalledTimes(0);
+
+    remitter.off("event2", spy2);
+
+    expect(spyRemit).toHaveBeenCalledTimes(0);
+    expect(spyRemitDisposer).toHaveBeenCalledTimes(1);
+    expect(spyRemitDisposer).lastCalledWith(undefined);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(spy2Disposer).toHaveBeenCalledTimes(0);
   });
 });
