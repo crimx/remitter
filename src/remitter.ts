@@ -19,7 +19,7 @@ import { abortable } from "@wopjs/disposable";
 import { tryCall } from "./utils";
 import { ANY_EVENT } from "./constants";
 
-export class Remitter<TConfig = any> {
+export class ReadonlyRemitter<TConfig = any> {
   private readonly listeners_ = new Map<
     AllRemitterEventNames<TConfig>,
     Set<Fn>
@@ -35,17 +35,17 @@ export class Remitter<TConfig = any> {
   /**
    * Emit an event to `eventName` listeners.
    */
-  public emit<TEventName extends RemitterDatalessEventName<TConfig>>(
+  protected emit<TEventName extends RemitterDatalessEventName<TConfig>>(
     eventName: TEventName
   ): void;
   /**
    * Emit an event with payload to `eventName` listeners.
    */
-  public emit<TEventName extends RemitterEventNames<TConfig>>(
+  protected emit<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
     eventData: TConfig[TEventName]
   ): void;
-  public emit<TEventName extends RemitterEventNames<TConfig>>(
+  protected emit<TEventName extends RemitterEventNames<TConfig>>(
     event: TEventName,
     data?: TConfig[TEventName]
   ): void {
@@ -56,7 +56,7 @@ export class Remitter<TConfig = any> {
       }
     }
     if (event !== ANY_EVENT && this.count(ANY_EVENT)) {
-      (this as Remitter<RemitterConfig<TConfig>>).emit(ANY_EVENT, {
+      (this as ReadonlyRemitter<RemitterConfig<TConfig>>).emit(ANY_EVENT, {
         event,
         data,
       } as any);
@@ -89,7 +89,10 @@ export class Remitter<TConfig = any> {
     listeners.add(listener);
 
     if (this.relayListeners_ && listeners.size === 1) {
-      tryStartAllRelay(this.relayListeners_, this);
+      tryStartAllRelay(
+        this.relayListeners_,
+        this as unknown as Remitter<TConfig>
+      );
     }
 
     return () => {
@@ -194,7 +197,7 @@ export class Remitter<TConfig = any> {
    * @param eventName
    * @param start A function that is called when listener count if `eventName` grows from 0 to 1. Returns a disposer when listener count if `eventName` drops from 1 to 0.
    */
-  public remit<TEventName extends AllRemitterEventNames<TConfig>>(
+  protected remit<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName: TEventName,
     start: (remitter: Remitter<TConfig>) => RemitterDisposer
   ): RemitterDisposer {
@@ -206,7 +209,7 @@ export class Remitter<TConfig = any> {
       relayListener
     );
     if (this.count(eventName) > 0 || this.count(ANY_EVENT) > 0) {
-      startRelay(relayListener, this);
+      startRelay(relayListener, this as unknown as Remitter<TConfig>);
     }
     return () => {
       this.relayListeners_?.delete(relayListener);
@@ -223,7 +226,10 @@ export class Remitter<TConfig = any> {
   }
 }
 
-export type ReadonlyRemitter<TConfig = any> = Pick<
-  Remitter<TConfig>,
-  "dispose" | "count" | "on" | "off" | "clear"
->;
+export class Remitter<TConfig = any> extends ReadonlyRemitter<TConfig> {
+  public constructor() {
+    super();
+  }
+  public override emit = super.emit;
+  public override remit = super.remit;
+}

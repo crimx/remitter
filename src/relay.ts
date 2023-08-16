@@ -1,5 +1,5 @@
 import type { AllRemitterEventNames, RemitterDisposer } from "./interface";
-import type { Remitter } from "./remitter";
+import type { ReadonlyRemitter, Remitter } from "./remitter";
 import { ANY_EVENT } from "./constants";
 import { noop, tryCall } from "./utils";
 
@@ -49,7 +49,7 @@ export const stopRelay = (listener: RelayListener) => {
 
 export const tryStopAllRelay = (
   listeners: Set<RelayListener>,
-  remitter: Remitter
+  remitter: ReadonlyRemitter
 ) => {
   for (const listener of listeners) {
     if (listener.disposer_) {

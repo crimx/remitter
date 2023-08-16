@@ -9,4 +9,4 @@ export type {
   RemitterDatalessEventName,
 } from "./interface";
 export { ANY_EVENT } from "./constants";
-export { Remitter, type ReadonlyRemitter } from "./remitter";
+export { Remitter, ReadonlyRemitter } from "./remitter";
