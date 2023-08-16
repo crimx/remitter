@@ -252,7 +252,7 @@ describe("remit", () => {
     consoleErrorMock.mockRestore();
   });
 
-  it.only("should remit by all emitter listeners", () => {
+  it("should remit by all emitter listeners", () => {
     const spyRemitDisposer = vi.fn();
     const spyRemit = vi.fn(() => spyRemitDisposer);
 
