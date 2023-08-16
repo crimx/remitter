@@ -1,6 +1,6 @@
 /**
- * A symbol that can be used as an event name to listen to all events.
+ * A event name that can be used to listen to all events.
  */
-export const ANY_EVENT = Symbol("any");
+export const ANY_EVENT = "$\u2009ANY_EVENT\u2009$" as const;
 
 export type ANY_EVENT = typeof ANY_EVENT;
