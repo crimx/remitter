@@ -25,7 +25,7 @@ export class Remitter<TConfig = any> {
     Set<Fn>
   >();
 
-  private readonly relayListeners_ = new Set<RelayListener>();
+  private relayListeners_?: Set<RelayListener>;
 
   private onceListeners_?: WeakMap<
     RemitterListener<TConfig, any>,
@@ -88,7 +88,7 @@ export class Remitter<TConfig = any> {
     }
     listeners.add(listener);
 
-    if (listeners.size === 1) {
+    if (this.relayListeners_ && listeners.size === 1) {
       tryStartAllRelay(this.relayListeners_, this);
     }
 
@@ -143,7 +143,9 @@ export class Remitter<TConfig = any> {
       }
       if (listeners.size <= 0) {
         this.listeners_.delete(eventName);
-        tryStopAllRelay(this.relayListeners_, this);
+        if (this.relayListeners_) {
+          tryStopAllRelay(this.relayListeners_, this);
+        }
       }
       return result;
     }
@@ -158,7 +160,9 @@ export class Remitter<TConfig = any> {
     } else {
       this.listeners_.clear();
     }
-    tryStopAllRelay(this.relayListeners_, this);
+    if (this.relayListeners_) {
+      tryStopAllRelay(this.relayListeners_, this);
+    }
   }
 
   /**
@@ -198,12 +202,14 @@ export class Remitter<TConfig = any> {
       start_: start,
       eventName_: eventName,
     };
-    this.relayListeners_.add(relayListener);
+    (this.relayListeners_ || (this.relayListeners_ = new Set())).add(
+      relayListener
+    );
     if (this.count(eventName) > 0 || this.count(ANY_EVENT) > 0) {
       startRelay(relayListener, this);
     }
     return () => {
-      this.relayListeners_.delete(relayListener);
+      this.relayListeners_?.delete(relayListener);
       stopRelay(relayListener);
     };
   }
@@ -213,7 +219,7 @@ export class Remitter<TConfig = any> {
    */
   public dispose(): void {
     this.clear();
-    this.relayListeners_.clear();
+    this.relayListeners_?.clear();
   }
 }
 
