@@ -20,6 +20,8 @@ import { tryCall } from "./utils";
 import { ANY_EVENT } from "./constants";
 
 export class ReadonlyRemitter<TConfig = any> {
+  public readonly ANY_EVENT: ANY_EVENT = ANY_EVENT;
+
   private readonly listeners_ = new Map<
     AllRemitterEventNames<TConfig>,
     Set<Fn>

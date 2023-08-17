@@ -62,7 +62,7 @@ remitter.dispose(); // removes all listeners and dispose tapped events
 ### Listen to any event
 
 ```ts
-import { ANY_EVENT, Remitter } from "remitter";
+import { Remitter } from "remitter";
 
 interface EventData {
   event1: string;
@@ -71,7 +71,7 @@ interface EventData {
 
 const remitter = new Remitter<EventData>();
 
-remitter.on(ANY_EVENT, ({ event, data }) => {
+remitter.on(remitter.ANY_EVENT, ({ event, data }) => {
   console.log(event, data);
 });
 
