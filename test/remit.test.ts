@@ -328,4 +328,27 @@ describe("remit", () => {
     expect(spy2).toHaveBeenCalledTimes(0);
     expect(spy2Disposer).toHaveBeenCalledTimes(0);
   });
+
+  it("should remit ANY_EVENT if listener count > 0", () => {
+    const spyRemitDisposer = vi.fn();
+    const spyRemit = vi.fn(() => spyRemitDisposer);
+
+    const spy1Disposer = vi.fn();
+    const spy1 = vi.fn(() => spy1Disposer);
+
+    interface EventData {
+      event1: number;
+      event2: string;
+    }
+    const remitter = new Remitter<EventData>();
+
+    remitter.on("event1", spy1);
+
+    remitter.remit(ANY_EVENT, spyRemit);
+
+    expect(spyRemit).toHaveBeenCalledTimes(1);
+    expect(spyRemitDisposer).toHaveBeenCalledTimes(0);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
+  });
 });

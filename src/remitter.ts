@@ -213,7 +213,11 @@ export class ReadonlyRemitter<TConfig = any> {
     (this.relayListeners_ || (this.relayListeners_ = new Set())).add(
       relayListener
     );
-    if (this.count(eventName) > 0 || this.count(ANY_EVENT) > 0) {
+    if (
+      eventName === ANY_EVENT
+        ? this.count() > 0
+        : this.count(eventName) > 0 || this.count(ANY_EVENT) > 0
+    ) {
       startRelay(relayListener, this as unknown as Remitter<TConfig>);
     }
     return () => {
