@@ -42,7 +42,7 @@ remitter.once("event1", value => {
   console.log("event1-once", value);
 });
 
-remitter.count("event1"); // 2
+remitter.has("event1"); // true
 
 remitter.emit("event1", "hello"); // logs "event1 hello" and "event1-once hello"
 
@@ -54,7 +54,8 @@ disposer();
 remitter.emit("event1", "world"); // nothing logs
 
 remitter.clear("event2"); // remove all listeners for event2
-remitter.count(); // 0
+
+remitter.has(); // false
 
 remitter.dispose(); // removes all listeners and dispose tapped events
 ```

@@ -60,7 +60,7 @@ export class ReadonlyRemitter<TConfig = any> {
         tryCall(listener, data as RemitterConfig<TConfig>[TEventName]);
       }
     }
-    if (event !== ANY_EVENT && this.count(ANY_EVENT)) {
+    if (event !== ANY_EVENT && this.has(ANY_EVENT)) {
       (this as ReadonlyRemitter<RemitterConfig<TConfig>>).emit(ANY_EVENT, {
         event,
         data,
@@ -174,9 +174,10 @@ export class ReadonlyRemitter<TConfig = any> {
   }
 
   /**
+   * @deprecated Use `has` instead.
    * Returns the number of listeners for the eventName.
-   * @param eventName If empty returns the number of listeners for all events.
-   * @returns
+   * @param eventName Optional eventName to check.
+   * @returns The number of listeners for the eventName. If no eventName is provided, returns the total count of all listeners.
    */
   public count<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName?: TEventName
@@ -189,6 +190,26 @@ export class ReadonlyRemitter<TConfig = any> {
         count += listeners.size;
       }
       return count;
+    }
+  }
+
+  /**
+   * If the eventName has any listener.
+   * @param eventName Optional eventName to check.
+   * @returns `true` if the eventName has any listener, `false` otherwise. If no eventName is provided, returns `true` if the Remitter has any listener.
+   */
+  public has<TEventName extends AllRemitterEventNames<TConfig>>(
+    eventName?: TEventName
+  ): boolean {
+    if (eventName) {
+      return (this.listeners_.get(eventName)?.size as number) > 0;
+    } else {
+      for (const listeners of this.listeners_.values()) {
+        if (listeners.size > 0) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 
@@ -215,8 +236,8 @@ export class ReadonlyRemitter<TConfig = any> {
     );
     if (
       eventName === ANY_EVENT
-        ? this.count() > 0
-        : this.count(eventName) > 0 || this.count(ANY_EVENT) > 0
+        ? this.has()
+        : this.has(eventName) || this.has(ANY_EVENT)
     ) {
       startRelay(relayListener, this as unknown as Remitter<TConfig>);
     }

@@ -24,15 +24,15 @@ export const tryStartAllRelay = (
           Sugar for
           ```
           listener.eventName_ === ANY_EVENT
-            ? remitter.count() > 0
-            : remitter.count(listener.eventName_) > 0 ||
-              remitter.count(ANY_EVENT) > 0
+            ? remitter.has()
+            : remitter.has(listener.eventName_) ||
+              remitter.has(ANY_EVENT)
           ```
-          `tryStartAll_` will always be called when remitter.count() > 0
+          `tryStartAll_` will always be called when remitter.has() is `true`
         */
         listener.eventName_ === ANY_EVENT ||
-        remitter.count(listener.eventName_) > 0 ||
-        remitter.count(ANY_EVENT) > 0
+        remitter.has(listener.eventName_) ||
+        remitter.has(ANY_EVENT)
       ) {
         startRelay(listener, remitter);
       }
@@ -55,9 +55,8 @@ export const tryStopAllRelay = (
     if (listener.disposer_) {
       if (
         listener.eventName_ === ANY_EVENT
-          ? remitter.count() <= 0
-          : remitter.count(ANY_EVENT) <= 0 &&
-            remitter.count(listener.eventName_) <= 0
+          ? !remitter.has()
+          : !remitter.has(ANY_EVENT) && !remitter.has(listener.eventName_)
       ) {
         stopRelay(listener);
       }
