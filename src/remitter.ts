@@ -25,14 +25,11 @@ export class ReadonlyRemitter<TConfig = any> {
    */
   public readonly ANY_EVENT: ANY_EVENT = ANY_EVENT;
 
-  private readonly listeners_ = new Map<
-    AllRemitterEventNames<TConfig>,
-    Set<Fn>
-  >();
+  readonly #listeners = new Map<AllRemitterEventNames<TConfig>, Set<Fn>>();
 
-  private relayListeners_?: Set<RelayListener>;
+  #relayListeners?: Set<RelayListener>;
 
-  private onceListeners_?: WeakMap<
+  #onceListeners?: WeakMap<
     RemitterListener<TConfig, any>,
     RemitterListener<TConfig, any>
   >;
@@ -54,7 +51,7 @@ export class ReadonlyRemitter<TConfig = any> {
     event: TEventName,
     data?: TConfig[TEventName]
   ): void {
-    const listeners = this.listeners_.get(event);
+    const listeners = this.#listeners.get(event);
     if (listeners) {
       for (const listener of listeners) {
         tryCall(listener, data as RemitterConfig<TConfig>[TEventName]);
@@ -86,16 +83,16 @@ export class ReadonlyRemitter<TConfig = any> {
     eventName: TEventName,
     listener: RemitterListener<TConfig, TEventName>
   ): RemitterDisposer {
-    let listeners = this.listeners_.get(eventName);
+    let listeners = this.#listeners.get(eventName);
     if (!listeners) {
       listeners = new Set();
-      this.listeners_.set(eventName, listeners);
+      this.#listeners.set(eventName, listeners);
     }
     listeners.add(listener);
 
-    if (this.relayListeners_ && listeners.size === 1) {
+    if (this.#relayListeners && listeners.size === 1) {
       tryStartAllRelay(
-        this.relayListeners_,
+        this.#relayListeners,
         this as unknown as Remitter<TConfig>
       );
     }
@@ -127,7 +124,7 @@ export class ReadonlyRemitter<TConfig = any> {
     const onceListener = (eventData => (
       off(), listener(eventData)
     )) as RemitterListener<TConfig, TEventName>;
-    (this.onceListeners_ || (this.onceListeners_ = new WeakMap())).set(
+    (this.#onceListeners || (this.#onceListeners = new WeakMap())).set(
       listener,
       onceListener
     );
@@ -142,17 +139,17 @@ export class ReadonlyRemitter<TConfig = any> {
     eventName: TEventName,
     listener: Fn
   ): boolean {
-    const listeners = this.listeners_.get(eventName);
+    const listeners = this.#listeners.get(eventName);
     if (listeners) {
       let result = listeners.delete(listener);
-      const onceListener = this.onceListeners_?.get(listener);
+      const onceListener = this.#onceListeners?.get(listener);
       if (onceListener) {
         result = listeners.delete(onceListener) || result;
       }
       if (listeners.size <= 0) {
-        this.listeners_.delete(eventName);
-        if (this.relayListeners_) {
-          tryStopAllRelay(this.relayListeners_, this);
+        this.#listeners.delete(eventName);
+        if (this.#relayListeners) {
+          tryStopAllRelay(this.#relayListeners, this);
         }
       }
       return result;
@@ -164,12 +161,12 @@ export class ReadonlyRemitter<TConfig = any> {
     eventName?: TEventName
   ): void {
     if (eventName) {
-      this.listeners_.get(eventName)?.clear();
+      this.#listeners.get(eventName)?.clear();
     } else {
-      this.listeners_.clear();
+      this.#listeners.clear();
     }
-    if (this.relayListeners_) {
-      tryStopAllRelay(this.relayListeners_, this);
+    if (this.#relayListeners) {
+      tryStopAllRelay(this.#relayListeners, this);
     }
   }
 
@@ -183,10 +180,10 @@ export class ReadonlyRemitter<TConfig = any> {
     eventName?: TEventName
   ): number {
     if (eventName) {
-      return this.listeners_.get(eventName)?.size || 0;
+      return this.#listeners.get(eventName)?.size || 0;
     } else {
       let count = 0;
-      for (const listeners of this.listeners_.values()) {
+      for (const listeners of this.#listeners.values()) {
         count += listeners.size;
       }
       return count;
@@ -202,9 +199,9 @@ export class ReadonlyRemitter<TConfig = any> {
     eventName?: TEventName
   ): boolean {
     if (eventName) {
-      return (this.listeners_.get(eventName)?.size as number) > 0;
+      return (this.#listeners.get(eventName)?.size as number) > 0;
     } else {
-      for (const listeners of this.listeners_.values()) {
+      for (const listeners of this.#listeners.values()) {
         if (listeners.size > 0) {
           return true;
         }
@@ -231,7 +228,7 @@ export class ReadonlyRemitter<TConfig = any> {
       start_: start,
       eventName_: eventName,
     };
-    (this.relayListeners_ || (this.relayListeners_ = new Set())).add(
+    (this.#relayListeners || (this.#relayListeners = new Set())).add(
       relayListener
     );
     if (
@@ -242,7 +239,7 @@ export class ReadonlyRemitter<TConfig = any> {
       startRelay(relayListener, this as unknown as Remitter<TConfig>);
     }
     return () => {
-      this.relayListeners_?.delete(relayListener);
+      this.#relayListeners?.delete(relayListener);
       stopRelay(relayListener);
     };
   }
@@ -252,7 +249,7 @@ export class ReadonlyRemitter<TConfig = any> {
    */
   public dispose(): void {
     this.clear();
-    this.relayListeners_?.clear();
+    this.#relayListeners?.clear();
   }
 }
 
