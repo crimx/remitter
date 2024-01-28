@@ -351,4 +351,40 @@ describe("remit", () => {
     expect(spy1).toHaveBeenCalledTimes(0);
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
   });
+
+  it("should remit a remitter", () => {
+    interface SourceEventData {
+      a: number;
+      b: string;
+    }
+    const source = new Remitter<SourceEventData>();
+
+    interface RemitterEventData {
+      c: number;
+      d: string;
+    }
+    const remitter = new Remitter<RemitterEventData>();
+
+    remitter.remit(remitter.ANY_EVENT, () =>
+      source.on(source.ANY_EVENT, ({ event, data }) => {
+        if (event === "a") {
+          remitter.emit("c", data);
+        } else if (event === "b") {
+          remitter.emit("d", data);
+        }
+      })
+    );
+
+    const spy = vi.fn();
+    remitter.once("c", spy);
+
+    expect(spy).toHaveBeenCalledTimes(0);
+
+    source.emit("a", 1);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).lastCalledWith(1);
+
+    source.emit("a", 2);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
 });
