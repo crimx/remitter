@@ -14,7 +14,7 @@
 [![tree-shakable](https://img.shields.io/badge/tree-shakable-success)](https://bundlejs.com/?q=remitter)
 [![side-effect-free](https://img.shields.io/badge/side--effect-free-success)](https://bundlejs.com/?q=remitter)
 
-A tiny TypeScript friendly event emitter that supports lazy re-emitting events form other sources.
+A tiny TypeScript friendly event emitter that supports lazy re-emitting events from other sources.
 
 ## Install
 
