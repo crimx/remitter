@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.6](https://github.com/crimx/remitter/compare/v0.3.5...v0.3.6) (2024-04-23)
+
+
+### Features
+
+* **remitter:** add remitAny ([05761cc](https://github.com/crimx/remitter/commit/05761cccbf78211a454b46a0d58c8a33d8b09bb1))
+
 ### [0.3.5](https://github.com/crimx/remitter/compare/v0.3.4...v0.3.5) (2024-04-23)
 
 
