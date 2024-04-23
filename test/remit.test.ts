@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { ANY_EVENT, Remitter } from "../src/main";
+import { Remitter } from "../src/main";
 
 describe("remit", () => {
   it("should run prepare when first listener is added", () => {
