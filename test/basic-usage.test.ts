@@ -391,8 +391,8 @@ describe("basic usage", () => {
       event1: number;
     }
     const remitter = new Remitter<RemitterConfig>();
-    remitter.on(ANY_EVENT, spy);
-    remitter.once(ANY_EVENT, spy);
+    remitter.onAny(spy);
+    remitter.onceAny(spy);
 
     expect(remitter.has()).toBe(true);
     expect(remitter.has(ANY_EVENT)).toBe(true);
@@ -423,5 +423,18 @@ describe("basic usage", () => {
     expect(remitter.count("event1")).toBe(0);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).lastCalledWith({ event: "event1", data: 2 });
+
+    spy.mockClear();
+
+    remitter.offAny(spy);
+
+    remitter.emit("event1", 2);
+    expect(remitter.has()).toBe(false);
+    expect(remitter.has(ANY_EVENT)).toBe(false);
+    expect(remitter.has("event1")).toBe(false);
+    expect(remitter.count()).toBe(0);
+    expect(remitter.count(ANY_EVENT)).toBe(0);
+    expect(remitter.count("event1")).toBe(0);
+    expect(spy).toHaveBeenCalledTimes(0);
   });
 });

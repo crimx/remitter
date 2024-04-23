@@ -72,7 +72,7 @@ interface EventData {
 
 const remitter = new Remitter<EventData>();
 
-remitter.on(remitter.ANY_EVENT, ({ event, data }) => {
+remitter.onAny(({ event, data }) => {
   console.log(event, data);
 });
 
