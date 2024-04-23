@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.5](https://github.com/crimx/remitter/compare/v0.3.4...v0.3.5) (2024-04-23)
+
+
+### Features
+
+* **remitter:** add onAny, onceAny and offAny ([0bca307](https://github.com/crimx/remitter/commit/0bca307c230e71b04b9b52dd33c932bde88f0da5))
+
 ### [0.3.4](https://github.com/crimx/remitter/compare/v0.3.3...v0.3.4) (2024-01-28)
 
 ### [0.3.3](https://github.com/crimx/remitter/compare/v0.3.2...v0.3.3) (2023-10-30)
