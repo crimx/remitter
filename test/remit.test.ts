@@ -268,7 +268,7 @@ describe("remit", () => {
     }
     const remitter = new Remitter<EventData>();
 
-    remitter.remit(ANY_EVENT, spyRemit);
+    remitter.remitAny(spyRemit);
 
     expect(spyRemit).toHaveBeenCalledTimes(0);
     expect(spyRemitDisposer).toHaveBeenCalledTimes(0);
@@ -344,7 +344,7 @@ describe("remit", () => {
 
     remitter.on("event1", spy1);
 
-    remitter.remit(ANY_EVENT, spyRemit);
+    remitter.remitAny(spyRemit);
 
     expect(spyRemit).toHaveBeenCalledTimes(1);
     expect(spyRemitDisposer).toHaveBeenCalledTimes(0);

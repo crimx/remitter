@@ -128,15 +128,26 @@ export interface Remitter<TConfig = any> extends EventReceiver<TConfig> {
   /**
    * Start a side effect when the eventName has a first listener.
    * Dispose the side effect when the eventName has no listeners.
-   * For example tap into other events.
-   *
-   * remit `ANY_EVENT` will be started when any event is listened.
+   * Useful for tapping into other events.
    *
    * @param eventName
-   * @param start A function that is called when listener count if `eventName` grows from 0 to 1. Returns a disposer when listener count if `eventName` drops from 1 to 0.
+   * @param start A function that is called when listener count of `eventName` grows from 0 to 1.
+   *              Returns a disposer when listener count of `eventName` drops from 1 to 0.
    */
   remit<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName: TEventName,
+    start: (remitter: Remitter<TConfig>) => RemitterDisposer
+  ): RemitterDisposer;
+
+  /**
+   * Start a side effect when the first listener.
+   * Dispose the side effect when the eventName has no listeners.
+   * Useful for tapping into other events.
+   *
+   * @param start A function that is called when all listener count grows from 0 to 1.
+   *              Returns a disposer when all listener count drops from 1 to 0.
+   */
+  remitAny(
     start: (remitter: Remitter<TConfig>) => RemitterDisposer
   ): RemitterDisposer;
 }
@@ -334,6 +345,12 @@ export class Remitter<TConfig = any> implements Remitter<TConfig> {
       this.#relayListeners?.delete(relayListener);
       stopRelay(relayListener);
     };
+  }
+
+  public remitAny(
+    start: (remitter: Remitter<TConfig>) => RemitterDisposer
+  ): RemitterDisposer {
+    return this.remit(ANY_EVENT, start);
   }
 
   public dispose(): void {
