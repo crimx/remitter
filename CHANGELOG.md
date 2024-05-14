@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.0](https://github.com/crimx/remitter/compare/v0.3.6...v0.4.0) (2024-05-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove root exported `ANY_EVENT` in favor of `remitter.ANY_EVENT`, `onAny`, `offAny`, `hasAny` and `clearAny` methods.
+* remove `count` method.
+* remove `ReadonlyRemitter` type in favor of `EventReceiver` type.
+
+### Features
+
+* add `hasAny` and `clearAny` ([e8c0eba](https://github.com/crimx/remitter/commit/e8c0eba73bf8565b8c89946202c192207bb5fb2b))
+* add error event ([c5aa4a7](https://github.com/crimx/remitter/commit/c5aa4a7f6409cdf28af898421d05b2cb171723f1))
+
 ### [0.3.6](https://github.com/crimx/remitter/compare/v0.3.5...v0.3.6) (2024-04-23)
 
 
