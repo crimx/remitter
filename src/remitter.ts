@@ -20,13 +20,13 @@ import { tryCall } from "./utils";
 import { ANY_EVENT } from "./constants";
 
 export interface EventReceiver<TConfig = any> {
-  /**
+  /*
    * An event name to listen to all events or to remit on any event listener.
    */
   readonly ANY_EVENT: ANY_EVENT;
 
   /**
-   * Add an `ANY_EVENT_NAME` listener to receive all events.
+   * Add an `ANY_EVENT` listener to receive all events.
    */
   on(
     eventName: typeof ANY_EVENT,
@@ -41,12 +41,12 @@ export interface EventReceiver<TConfig = any> {
   ): RemitterDisposer;
 
   /**
-   * Add an `ANY_EVENT_NAME` listener to receive all events.
+   * Add an `ANY_EVENT` listener to receive all events.
    */
   onAny(listener: AnyRemitterListener<TConfig>): RemitterDisposer;
 
   /**
-   * Add a one-time listener to `ANY_EVENT_NAME` to receive all events..
+   * Add a one-time listener to `ANY_EVENT` to receive all events..
    */
   once(
     eventName: typeof ANY_EVENT,
@@ -61,7 +61,7 @@ export interface EventReceiver<TConfig = any> {
   ): RemitterDisposer;
 
   /**
-   * Add a one-time listener to `ANY_EVENT_NAME` to receive all events..
+   * Add a one-time listener to `ANY_EVENT` to receive all events..
    */
   onceAny(listener: AnyRemitterListener<TConfig>): RemitterDisposer;
 
@@ -74,16 +74,22 @@ export interface EventReceiver<TConfig = any> {
   ): boolean;
 
   /**
-   * Remove a listener from `ANY_EVENT_NAME`.
+   * Remove a listener from `ANY_EVENT`.
    */
   offAny(listener: AnyRemitterListener<TConfig>): boolean;
 
   /**
    * Remove all listeners.
+   * @param eventName Optional eventName to clear.
    */
   clear<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName?: TEventName
   ): void;
+
+  /**
+   * Remove all listeners from `ANY_EVENT`.
+   */
+  clearAny(): void;
 
   /**
    * If the eventName has any listener.
@@ -95,14 +101,10 @@ export interface EventReceiver<TConfig = any> {
   ): boolean;
 
   /**
-   * @deprecated Use `has` instead.
-   * Returns the number of listeners for the eventName.
-   * @param eventName Optional eventName to check.
-   * @returns The number of listeners for the eventName. If no eventName is provided, returns the total count of all listeners.
+   * If the `ANY_EVENT` has any listener.
+   * @returns `true` if the `ANY_EVENT` has any listener, `false` otherwise.
    */
-  count<TEventName extends AllRemitterEventNames<TConfig>>(
-    eventName?: TEventName
-  ): number;
+  hasAny(): boolean;
 
   /**
    * Remove all listeners and all remit listeners.
@@ -134,7 +136,7 @@ export interface Remitter<TConfig = any> extends EventReceiver<TConfig> {
    * @param start A function that is called when listener count of `eventName` grows from 0 to 1.
    *              Returns a disposer when listener count of `eventName` drops from 1 to 0.
    */
-  remit<TEventName extends AllRemitterEventNames<TConfig>>(
+  remit<TEventName extends RemitterListener<TConfig>>(
     eventName: TEventName,
     start: (remitter: Remitter<TConfig>) => RemitterDisposer
   ): RemitterDisposer;
@@ -291,6 +293,10 @@ export class Remitter<TConfig = any> implements Remitter<TConfig> {
     }
   }
 
+  public clearAny(): void {
+    this.clear(ANY_EVENT);
+  }
+
   public has<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName?: TEventName
   ): boolean {
@@ -306,21 +312,8 @@ export class Remitter<TConfig = any> implements Remitter<TConfig> {
     }
   }
 
-  /**
-   * @deprecated Use `has` instead.
-   */
-  public count<TEventName extends AllRemitterEventNames<TConfig>>(
-    eventName?: TEventName
-  ): number {
-    if (eventName) {
-      return this.#listeners.get(eventName)?.size || 0;
-    } else {
-      let count = 0;
-      for (const listeners of this.#listeners.values()) {
-        count += listeners.size;
-      }
-      return count;
-    }
+  public hasAny(): boolean {
+    return this.has(ANY_EVENT);
   }
 
   public remit<TEventName extends AllRemitterEventNames<TConfig>>(
@@ -358,12 +351,3 @@ export class Remitter<TConfig = any> implements Remitter<TConfig> {
     this.#relayListeners?.clear();
   }
 }
-
-/**
- * @deprecated Use `EventReceiver` instead.
- */
-export type ReadonlyRemitter<TConfig = any> = EventReceiver<TConfig>;
-/**
- * @deprecated Use `Remitter` instead.
- */
-export const ReadonlyRemitter = Remitter;
