@@ -80,6 +80,32 @@ remitter.emit("event1", "hello"); // logs "event1 hello"
 remitter.emit("event2", "world"); // logs "event2 world"
 ```
 
+### Listen to unhandled subscriber errors
+
+```ts
+import { Remitter } from "remitter";
+
+interface EventData {
+  event1: string;
+  event2: string;
+}
+
+const remitter = new Remitter<EventData>();
+
+remitter.onError(error => {
+  console.log(error);
+});
+
+remitter.emit("event1", () => {
+  throw new Error("error");
+});
+
+remitter.emit("event2", async () => {
+  await new Promise(resolve => setTimeout(resolve, 100));
+  throw new Error("async-error");
+});
+```
+
 ### Remit
 
 You may tap into other events easily with `remit`. It is lazy-executed when listener count of the event name grows from 0 to 1. It is disposed when listener count of the event name drops from 1 to 0.

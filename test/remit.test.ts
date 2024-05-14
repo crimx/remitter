@@ -1,8 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { Remitter } from "../src/main";
 
+const nextTick = () => new Promise<void>(resolve => setImmediate(resolve));
+
 describe("remit", () => {
-  it("should run prepare when first listener is added", () => {
+  it("should run prepare when first listener is added", async () => {
     const spy1Disposer = vi.fn();
     const spy1 = vi.fn(() => spy1Disposer);
     const spy2Disposer = vi.fn();
@@ -16,22 +18,28 @@ describe("remit", () => {
     remitter.remit("event2", spy2);
 
     expect(spy1).toHaveBeenCalledTimes(0);
-    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2Disposer).toHaveBeenCalledTimes(0);
 
     remitter.emit("event1", 1);
 
     expect(spy1).toHaveBeenCalledTimes(0);
-    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2Disposer).toHaveBeenCalledTimes(0);
 
     remitter.on("event1", spy3);
 
     expect(spy1).toHaveBeenCalledTimes(1);
-    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2Disposer).toHaveBeenCalledTimes(0);
 
     expect(spy1).lastCalledWith(remitter);
@@ -42,15 +50,17 @@ describe("remit", () => {
     remitter.off("event1", spy3);
 
     expect(spy1).toHaveBeenCalledTimes(0);
-    expect(spy1Disposer).toHaveBeenCalledTimes(1);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(1);
     expect(spy2Disposer).toHaveBeenCalledTimes(0);
 
     expect(spy1Disposer).lastCalledWith(undefined);
     expect(spy3).toHaveBeenCalledTimes(0);
   });
 
-  it("should dispose remit", () => {
+  it("should dispose remit", async () => {
     const spy1Disposer = vi.fn();
     const spy1 = vi.fn(() => spy1Disposer);
 
@@ -61,49 +71,65 @@ describe("remit", () => {
     const dispose1 = remitter.remit("event1", spy1);
 
     expect(spy1).toHaveBeenCalledTimes(0);
+
+    await nextTick();
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
 
     dispose1();
 
     expect(spy1).toHaveBeenCalledTimes(0);
+
+    await nextTick();
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
 
     const spy2 = vi.fn();
     remitter.on("event1", spy2);
 
     expect(spy1).toHaveBeenCalledTimes(0);
-    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
 
     remitter.off("event1", spy2);
 
     expect(spy1).toHaveBeenCalledTimes(0);
-    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
 
     const dispose2 = remitter.remit("event1", spy1);
 
     expect(spy1).toHaveBeenCalledTimes(0);
-    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
 
     remitter.on("event1", spy2);
 
     expect(spy1).toHaveBeenCalledTimes(1);
-    expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(0);
 
     dispose2();
 
     expect(spy1).toHaveBeenCalledTimes(1);
-    expect(spy1Disposer).toHaveBeenCalledTimes(1);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(1);
 
     remitter.off("event1", spy2);
 
     expect(spy1).toHaveBeenCalledTimes(1);
-    expect(spy1Disposer).toHaveBeenCalledTimes(1);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+    expect(spy1Disposer).toHaveBeenCalledTimes(1);
   });
 
   it("should support pure `start` callback", () => {
@@ -167,7 +193,7 @@ describe("remit", () => {
     expect(spy1).lastCalledWith("remitter-other-event2");
   });
 
-  it("should start remit immediately if eventName exists listeners", () => {
+  it("should start remit immediately if eventName exists listeners", async () => {
     const spy1Disposer = vi.fn();
     const spy1 = vi.fn(() => spy1Disposer);
     const spy2 = vi.fn();
@@ -194,11 +220,14 @@ describe("remit", () => {
     remitter.dispose();
 
     expect(spy1).toHaveBeenCalledTimes(1);
-    expect(spy1Disposer).toHaveBeenCalledTimes(1);
     expect(spy2).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+
+    expect(spy1Disposer).toHaveBeenCalledTimes(1);
   });
 
-  it("should catch error on listener", () => {
+  it("should catch error on listener", async () => {
     const consoleErrorMock = vi
       .spyOn(console, "error")
       .mockImplementation(() => void 0);
@@ -215,7 +244,14 @@ describe("remit", () => {
     remitter.on("event1", () => {
       throw error1;
     });
+    remitter.on("event1", async () => {
+      throw error1;
+    });
     remitter.remit("event2", () => {
+      throw error2;
+    });
+    // @ts-expect-error - async disposer is not allowed even though it still works
+    remitter.remit("event2", async () => {
       throw error2;
     });
     remitter.remit("event3", () => {
@@ -228,23 +264,31 @@ describe("remit", () => {
 
     remitter.emit("event1", 1);
 
-    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
+    await nextTick();
+
+    expect(consoleErrorMock).toHaveBeenCalledTimes(2);
     expect(consoleErrorMock).lastCalledWith(error1);
 
     consoleErrorMock.mockClear();
 
     remitter.on("event2", () => void 0);
 
-    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
+    await nextTick();
+
+    expect(consoleErrorMock).toHaveBeenCalledTimes(2);
     expect(consoleErrorMock).lastCalledWith(error2);
 
     consoleErrorMock.mockClear();
 
     remitter.on("event3", () => void 0);
 
+    await nextTick();
+
     expect(consoleErrorMock).toHaveBeenCalledTimes(0);
 
     remitter.dispose();
+
+    await nextTick();
 
     expect(consoleErrorMock).toHaveBeenCalledTimes(1);
     expect(consoleErrorMock).lastCalledWith(error3);
@@ -252,7 +296,7 @@ describe("remit", () => {
     consoleErrorMock.mockRestore();
   });
 
-  it("should remit by all emitter listeners", () => {
+  it("should remit by all emitter listeners", async () => {
     const spyRemitDisposer = vi.fn();
     const spyRemit = vi.fn(() => spyRemitDisposer);
 
@@ -321,12 +365,15 @@ describe("remit", () => {
     remitter.off("event2", spy2);
 
     expect(spyRemit).toHaveBeenCalledTimes(0);
-    expect(spyRemitDisposer).toHaveBeenCalledTimes(1);
-    expect(spyRemitDisposer).lastCalledWith(undefined);
     expect(spy1).toHaveBeenCalledTimes(0);
     expect(spy1Disposer).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
     expect(spy2Disposer).toHaveBeenCalledTimes(0);
+
+    await nextTick();
+
+    expect(spyRemitDisposer).toHaveBeenCalledTimes(1);
+    expect(spyRemitDisposer).lastCalledWith(undefined);
   });
 
   it("should remit ANY_EVENT if listener count > 0", () => {

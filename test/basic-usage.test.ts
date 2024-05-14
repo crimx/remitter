@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { Remitter } from "../src/main";
 
+const nextTick = () => new Promise(resolve => setTimeout(resolve, 0));
+
 describe("basic usage", () => {
   it("should add listener", () => {
     const spy = vi.fn();
@@ -434,5 +436,106 @@ describe("basic usage", () => {
     expect(remitter.hasAny()).toBe(false);
     expect(remitter.has("event1")).toBe(false);
     expect(spy).toHaveBeenCalledTimes(0);
+  });
+
+  it("should onError", async () => {
+    const consoleErrorMock = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => void 0);
+
+    const spy1 = vi.fn();
+    const spy2 = vi.fn();
+    const spy3 = vi.fn();
+
+    interface RemitterConfig {
+      event1: number;
+      event2: number;
+      event3: number;
+    }
+    const remitter = new Remitter<RemitterConfig>();
+    remitter.onError(spy1);
+    remitter.onError(spy2);
+    remitter.onceError(spy3);
+
+    const error1 = new Error("error1");
+    remitter.on("event1", () => {
+      throw error1;
+    });
+
+    const error2 = new Error("error2");
+    remitter.on("event2", async () => {
+      await Promise.resolve();
+      throw error2;
+    });
+
+    const error3 = new Error("error3");
+    remitter.on("event3", async () => {
+      await Promise.resolve();
+      throw error3;
+    });
+
+    expect(remitter.has()).toBe(true);
+    expect(remitter.hasError()).toBe(true);
+    expect(remitter.has(remitter.ERROR_EVENT)).toBe(true);
+
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(spy3).toHaveBeenCalledTimes(0);
+
+    remitter.emit("event1", 1);
+
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy1).lastCalledWith(error1);
+    expect(spy2).toHaveBeenCalledTimes(1);
+    expect(spy2).lastCalledWith(error1);
+    expect(spy3).toHaveBeenCalledTimes(1);
+    expect(spy3).lastCalledWith(error1);
+
+    spy1.mockClear();
+    spy2.mockClear();
+    spy3.mockClear();
+
+    remitter.emit("event2", 1);
+
+    await nextTick();
+
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy1).lastCalledWith(error2);
+    expect(spy2).toHaveBeenCalledTimes(1);
+    expect(spy2).lastCalledWith(error2);
+    expect(spy3).toHaveBeenCalledTimes(0);
+
+    spy1.mockClear();
+    spy2.mockClear();
+    spy3.mockClear();
+
+    remitter.offError(spy1);
+
+    remitter.emit("event1", 1);
+
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(1);
+    expect(spy2).lastCalledWith(error1);
+    expect(spy3).toHaveBeenCalledTimes(0);
+
+    spy1.mockClear();
+    spy2.mockClear();
+
+    remitter.clearError();
+
+    expect(consoleErrorMock).toHaveBeenCalledTimes(0);
+
+    remitter.emit("event3", 1);
+
+    await nextTick();
+
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(spy3).toHaveBeenCalledTimes(0);
+
+    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
+    expect(consoleErrorMock).lastCalledWith(error3);
+
+    consoleErrorMock.mockRestore();
   });
 });

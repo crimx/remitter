@@ -1,4 +1,4 @@
-import type { ANY_EVENT } from "./constants";
+import type { ANY_EVENT, ERROR_EVENT } from "./constants";
 
 export type Fn = (...args: any[]) => any;
 
@@ -12,6 +12,8 @@ export type AnyEventData<
 export type AnyRemitterListener<TConfig> = (
   data: AnyEventData<TConfig>
 ) => void;
+
+export type ErrorRemitterListener = (error: unknown) => void;
 
 export type RemitterConfig<TConfig> = TConfig & {
   [name in ANY_EVENT]: AnyEventData<TConfig>;
@@ -28,7 +30,10 @@ export type RemitterDatalessEventName<TConfig> = {
 
 export type RemitterEventNames<TConfig> = keyof TConfig;
 
-export type AllRemitterEventNames<TConfig> = keyof TConfig | ANY_EVENT;
+export type AllRemitterEventNames<TConfig> =
+  | keyof TConfig
+  | ANY_EVENT
+  | ERROR_EVENT;
 
 export type RemitterListener<
   TConfig,
