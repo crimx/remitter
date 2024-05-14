@@ -5,6 +5,7 @@ export type {
   RemitterEventNames,
   AllRemitterEventNames,
   AnyRemitterListener,
+  ErrorRemitterListener,
   AnyEventData,
   RemitterDatalessEventName,
 } from "./interface";

@@ -45,7 +45,7 @@ export interface Remitter<TConfig = any> {
    * @param start A function that is called when listener count of `eventName` grows from 0 to 1.
    *              Returns a disposer when listener count of `eventName` drops from 1 to 0.
    */
-  remit<TEventName extends RemitterListener<TConfig>>(
+  remit<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName: TEventName,
     start: (remitter: Remitter<TConfig>) => RemitterDisposer
   ): RemitterDisposer;
