@@ -2,6 +2,8 @@
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.enable": true,
+  "eslint.enable": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.addMissingImports": "explicit"
