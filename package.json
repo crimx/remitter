@@ -9,6 +9,8 @@
   "sideEffects": false,
   "main": "./dist/main.js",
   "module": "./dist/main.mjs",
+  "unpkg": "./dist/main.umd.js",
+  "jsdelivr": "./dist/main.umd.js",
   "types": "./dist/main.d.ts",
   "files": [
     "src",
@@ -43,5 +45,6 @@
     "vite": "^4.2.2",
     "vitest": "^0.31.0",
     "yoctocolors": "^1.0.0"
-  }
+  },
+  "packageManager": "pnpm@9.6.0"
 }
