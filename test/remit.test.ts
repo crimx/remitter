@@ -234,6 +234,7 @@ describe("remit", () => {
 
     const error1 = new Error("error1");
     const error2 = new Error("error2");
+    const error22 = new Error("error22");
     const error3 = new Error("error3");
 
     const remitter = new Remitter<{
@@ -252,7 +253,7 @@ describe("remit", () => {
     });
     // @ts-expect-error - async disposer is not allowed even though it still works
     remitter.remit("event2", async () => {
-      throw error2;
+      throw error22;
     });
     remitter.remit("event3", () => {
       return () => {
@@ -276,7 +277,8 @@ describe("remit", () => {
     await nextTick();
 
     expect(consoleErrorMock).toHaveBeenCalledTimes(2);
-    expect(consoleErrorMock).lastCalledWith(error2);
+    expect(consoleErrorMock).toBeCalledWith(error2);
+    expect(consoleErrorMock).toBeCalledWith(error22);
 
     consoleErrorMock.mockClear();
 
@@ -284,6 +286,7 @@ describe("remit", () => {
 
     await nextTick();
 
+    console.log(consoleErrorMock.mock.calls);
     expect(consoleErrorMock).toHaveBeenCalledTimes(0);
 
     remitter.dispose();
@@ -433,5 +436,53 @@ describe("remit", () => {
 
     source.emit("a", 2);
     expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("should dispose before next remit", async () => {
+    interface RemitterEventData {
+      a: "a";
+      b: "b";
+    }
+    const remitter = new Remitter<RemitterEventData>();
+
+    const onSpy = vi.fn();
+    const remitSpy = vi.fn();
+    const disposeSpy = vi.fn();
+
+    remitter.remit("a", () => {
+      remitSpy("a");
+      return () => disposeSpy("a");
+    });
+
+    expect(onSpy).toHaveBeenCalledTimes(0);
+    expect(remitSpy).toHaveBeenCalledTimes(0);
+    expect(disposeSpy).toHaveBeenCalledTimes(0);
+
+    remitter.on("a", onSpy);
+
+    expect(onSpy).toHaveBeenCalledTimes(0);
+    expect(remitSpy).toHaveBeenCalledTimes(1);
+    expect(remitSpy).lastCalledWith("a");
+    expect(disposeSpy).toHaveBeenCalledTimes(0);
+
+    remitSpy.mockClear();
+
+    remitter.clear("a");
+
+    expect(onSpy).toHaveBeenCalledTimes(0);
+    expect(remitSpy).toHaveBeenCalledTimes(0);
+    expect(disposeSpy).toHaveBeenCalledTimes(1);
+    expect(disposeSpy).lastCalledWith("a");
+
+    disposeSpy.mockClear();
+
+    remitter.on("a", onSpy);
+
+    expect(onSpy).toHaveBeenCalledTimes(0);
+    expect(remitSpy).toHaveBeenCalledTimes(1);
+    expect(remitSpy).lastCalledWith("a");
+    expect(disposeSpy).toHaveBeenCalledTimes(0);
+
+    remitter.dispose();
   });
 });

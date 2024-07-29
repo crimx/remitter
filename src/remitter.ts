@@ -10,6 +10,7 @@ import type {
 } from "./interface";
 import { abortable } from "@wopjs/disposable";
 import { ANY_EVENT, ERROR_EVENT } from "./constants";
+import { isPromise } from "./utils";
 
 export interface Remitter<TConfig = any> {
   /*
@@ -425,15 +426,16 @@ export class Remitter<TConfig = any> implements Remitter<TConfig> {
     }
   }
 
-  #startRelay(listener: RelayListener) {
-    listener.disposer_ = this.#tryCall(listener.start_, this);
+  async #startRelay(listener: RelayListener) {
+    listener.disposer_ =
+      this.#tryCall(listener.start_, this) || Promise.resolve();
   }
 
   async #stopRelay(listener: RelayListener): Promise<void> {
-    if (listener.disposer_) {
-      const pDisposer = listener.disposer_;
+    const pDisposer = listener.disposer_;
+    if (pDisposer) {
       listener.disposer_ = null;
-      const disposer = await pDisposer;
+      const disposer = isPromise(pDisposer) ? await pDisposer : pDisposer;
       disposer && this.#tryCall(disposer);
     }
   }
@@ -453,25 +455,27 @@ export class Remitter<TConfig = any> implements Remitter<TConfig> {
     }
   }
 
-  async #tryCall<TReturn = void>(
-    fn: () => TReturn
-  ): Promise<TReturn | undefined>;
-  async #tryCall<TReturn = void, TArg = any>(
+  #tryCall<TReturn = void>(fn: () => TReturn): Promise<TReturn | undefined>;
+  #tryCall<TReturn = void, TArg = any>(
     fn: (arg: TArg) => TReturn,
     arg: TArg
   ): Promise<TReturn | undefined>;
-  async #tryCall<TReturn = void, TArg = any>(
-    fn: (arg?: TArg) => TReturn,
+  #tryCall<TReturn = void, TArg = any>(
+    fn: (arg?: TArg) => TReturn | Promise<TReturn>,
     arg?: TArg
-  ): Promise<TReturn | undefined> {
-    try {
-      return await fn(arg);
-    } catch (e) {
+  ): Promise<TReturn | undefined | void> | TReturn | undefined {
+    const handleError = (e: unknown): void => {
       if (this.has(ERROR_EVENT)) {
         this.#emit(ERROR_EVENT, e);
       } else {
         console.error(e);
       }
+    };
+    try {
+      const p = fn(arg);
+      return isPromise(p) ? p.catch(handleError) : p;
+    } catch (e) {
+      handleError(e);
     }
   }
 }
@@ -479,5 +483,9 @@ export class Remitter<TConfig = any> implements Remitter<TConfig> {
 interface RelayListener<TConfig = any> {
   readonly eventName_: AllRemitterEventNames<TConfig>;
   readonly start_: (remitter: Remitter<TConfig>) => RemitterDisposer;
-  disposer_?: Promise<RemitterDisposer | undefined> | null;
+  disposer_?:
+    | Promise<RemitterDisposer | undefined>
+    | RemitterDisposer
+    | null
+    | undefined;
 }
