@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.3](https://github.com/crimx/remitter/compare/v0.4.2...v0.4.3) (2024-07-29)
+
+
+### Bug Fixes
+
+* **remit:** should dispose before next remit ([06bc0aa](https://github.com/crimx/remitter/commit/06bc0aa5f5708f5de56e34319b81540ccd8e0a2a))
+
 ### [0.4.2](https://github.com/crimx/remitter/compare/v0.4.1...v0.4.2) (2024-07-22)
 
 ### [0.4.1](https://github.com/crimx/remitter/compare/v0.4.0...v0.4.1) (2024-05-14)
