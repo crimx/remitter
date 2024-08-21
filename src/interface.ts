@@ -40,8 +40,6 @@ export type RemitterListener<
   TEventName extends RemitterEventNames<
     RemitterConfig<TConfig>
   > = RemitterEventNames<RemitterConfig<TConfig>>
-> = RemitterConfig<TConfig>[TEventName] extends undefined | void | never
-  ? () => void
-  : (eventData: RemitterConfig<TConfig>[TEventName]) => void;
+> = (eventData: RemitterConfig<TConfig>[TEventName]) => void;
 
 export type RemitterDisposer = () => void;
