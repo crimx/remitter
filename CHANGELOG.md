@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.4](https://github.com/crimx/remitter/compare/v0.4.3...v0.4.4) (2024-08-21)
+
 ### [0.4.3](https://github.com/crimx/remitter/compare/v0.4.2...v0.4.3) (2024-07-29)
 
 
