@@ -7,5 +7,5 @@ const bundle = await rollup({
 await bundle.write({
   format: "umd",
   file: "dist/main.umd.js",
-  name: "remitter",
+  name: "Remitter",
 });
