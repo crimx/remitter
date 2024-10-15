@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { Remitter } from "../src/main";
 
-const nextTick = () => new Promise<void>(resolve => setImmediate(resolve));
+import { Remitter } from "../src/index";
+
+const nextTick = () => new Promise<void>(resolve => setTimeout(resolve, 0));
 
 describe("remit", () => {
   it("should run prepare when first listener is added", async () => {

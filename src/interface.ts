@@ -4,7 +4,7 @@ export type Fn = (...args: any[]) => any;
 
 export type AnyEventData<
   TConfig,
-  TEventName extends keyof TConfig = keyof TConfig
+  TEventName extends keyof TConfig = keyof TConfig,
 > = TEventName extends any
   ? { event: TEventName; data: TConfig[TEventName] }
   : never;
@@ -39,7 +39,7 @@ export type RemitterListener<
   TConfig,
   TEventName extends RemitterEventNames<
     RemitterConfig<TConfig>
-  > = RemitterEventNames<RemitterConfig<TConfig>>
+  > = RemitterEventNames<RemitterConfig<TConfig>>,
 > = (eventData: RemitterConfig<TConfig>[TEventName]) => void;
 
 export type RemitterDisposer = () => void;

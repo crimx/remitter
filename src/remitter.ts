@@ -8,7 +8,9 @@ import type {
   Fn,
   ErrorRemitterListener,
 } from "./interface";
+
 import { abortable } from "@wopjs/disposable";
+
 import { ANY_EVENT, ERROR_EVENT } from "./constants";
 import { isPromise } from "./utils";
 
@@ -195,6 +197,7 @@ export type EventReceiver<TConfig = any> = Omit<
   "emit" | "remit" | "remitAny"
 >;
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class Remitter<TConfig = any> implements Remitter<TConfig> {
   public readonly ANY_EVENT: ANY_EVENT = ANY_EVENT;
   public readonly ERROR_EVENT: ERROR_EVENT = ERROR_EVENT;
@@ -436,7 +439,9 @@ export class Remitter<TConfig = any> implements Remitter<TConfig> {
     if (pDisposer) {
       listener.disposer_ = null;
       const disposer = isPromise(pDisposer) ? await pDisposer : pDisposer;
-      disposer && this.#tryCall(disposer);
+      if (disposer) {
+        this.#tryCall(disposer);
+      }
     }
   }
 

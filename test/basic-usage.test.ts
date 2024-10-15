@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { Remitter } from "../src/main";
+
+import { Remitter } from "../src/index";
 
 const nextTick = () => new Promise(resolve => setTimeout(resolve, 0));
 
