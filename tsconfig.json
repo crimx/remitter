@@ -13,6 +13,7 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "stripInternal": true,
     "lib": ["DOM", "ESNext"],
     "outDir": "dist"
   },
