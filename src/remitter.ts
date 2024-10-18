@@ -20,12 +20,12 @@ export type EventReceiver<TConfig = any> = Omit<
 >;
 
 export class Remitter<TConfig = any> {
-  /*
+  /**
    * An event name to listen to all events or to remit on any event listener.
    */
   public readonly ANY_EVENT: ANY_EVENT = ANY_EVENT;
 
-  /*
+  /**
    * An event name to listen to unhandled subscriber errors.
    */
   public readonly ERROR_EVENT: ERROR_EVENT = ERROR_EVENT;
