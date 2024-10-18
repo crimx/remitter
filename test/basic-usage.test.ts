@@ -70,16 +70,16 @@ describe("basic usage", () => {
     expect(remitter.has("event1")).toBe(true);
     expect(spy).toHaveBeenCalledTimes(0);
 
-    expect(remitter.off("event1", spy)).toBe(true);
+    remitter.off("event1", spy);
     expect(remitter.has()).toBe(false);
 
-    expect(remitter.off("event1", spy)).toBe(false);
+    remitter.off("event1", spy);
 
     remitter.emit("event1", 1);
     expect(spy).toHaveBeenCalledTimes(0);
 
     // @ts-expect-error - no event2
-    expect(remitter.off("event2", spy)).toBe(false);
+    remitter.off("event2", spy);
   });
 
   it("should remove once listener", () => {
@@ -95,9 +95,9 @@ describe("basic usage", () => {
     expect(remitter.has("event1")).toBe(true);
     expect(spy).toHaveBeenCalledTimes(0);
 
-    expect(remitter.off("event1", spy)).toBe(true);
+    remitter.off("event1", spy);
     expect(remitter.has()).toBe(false);
-    expect(remitter.off("event1", spy)).toBe(false);
+    remitter.off("event1", spy);
 
     remitter.emit("event1", 1);
     expect(spy).toHaveBeenCalledTimes(0);
@@ -282,12 +282,12 @@ describe("basic usage", () => {
     disposer2();
     expect(remitter.has()).toBe(true);
     expect(remitter.has("event1")).toBe(true);
-    expect(remitter.off("event1", spy2)).toBe(false);
+    remitter.off("event1", spy2);
 
     disposer1();
     expect(remitter.has()).toBe(false);
     expect(remitter.has("event1")).toBe(false);
-    expect(remitter.off("event1", spy1)).toBe(false);
+    remitter.off("event1", spy1);
 
     remitter.emit("event1", 1);
     expect(spy1).toHaveBeenCalledTimes(0);
