@@ -30,7 +30,7 @@ export default defineConfig([
     ...base,
     format: ["esm"],
     sourcemap: false,
-    noExternal: Object.keys(pkg.peerDependencies),
+    noExternal: Object.keys(pkg.dependencies),
     outExtension: () => ({ js: `.umd.mjs` }),
     onSuccess: async () => {
       const bundle = await rollup({
