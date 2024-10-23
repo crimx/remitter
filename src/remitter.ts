@@ -23,18 +23,6 @@ export type EventReceiver<TConfig = any> = Omit<
 
 export class Remitter<TConfig = any> {
   /**
-   * An event name to listen to all events or to remit on any event listener.
-   * @deprecated
-   */
-  public readonly ANY_EVENT: ANY_EVENT = ANY_EVENT;
-
-  /**
-   * An event name to listen to unhandled subscriber errors.
-   * @deprecated
-   */
-  public readonly ERROR_EVENT: ERROR_EVENT = ERROR_EVENT;
-
-  /**
    * Emit an event to `eventName` listeners.
    */
   public emit<TEventName extends RemitterDatalessEventName<TConfig>>(
@@ -62,6 +50,7 @@ export class Remitter<TConfig = any> {
 
   /**
    * Add an `ANY_EVENT` listener to receive all events.
+   * @internal
    */
   public on(
     eventName: typeof ANY_EVENT,
@@ -69,6 +58,7 @@ export class Remitter<TConfig = any> {
   ): RemitterDisposer;
   /**
    * Add an `ERROR_EVENT` listener to receive unhandled subscriber errors.
+   * @internal
    */
   public on(
     eventName: typeof ERROR_EVENT,
@@ -129,6 +119,7 @@ export class Remitter<TConfig = any> {
 
   /**
    * Add a one-time listener to `ANY_EVENT` to receive all events.
+   * @internal
    */
   public once(
     eventName: typeof ANY_EVENT,
@@ -136,6 +127,7 @@ export class Remitter<TConfig = any> {
   ): RemitterDisposer;
   /**
    * Add a one-time listener to `ERROR_EVENT` to receive unhandled subscriber errors.
+   * @internal
    */
   public once(
     eventName: typeof ERROR_EVENT,
@@ -181,6 +173,17 @@ export class Remitter<TConfig = any> {
   /**
    * Remove a listener from the eventName.
    */
+  public off<TEventName extends RemitterEventNames<TConfig>>(
+    eventName: TEventName,
+    listener: Fn
+  ): void;
+  /**
+   * @internal
+   */
+  public off<TEventName extends AllRemitterEventNames<TConfig>>(
+    eventName: TEventName,
+    listener: Fn
+  ): void;
   public off<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName: TEventName,
     listener: Fn
@@ -218,9 +221,18 @@ export class Remitter<TConfig = any> {
   }
 
   /**
-   * Remove all listeners.
+   * Remove all listeners from the eventName or all events.
    * @param eventName Optional eventName to clear.
    */
+  public clear<TEventName extends RemitterEventNames<TConfig>>(
+    eventName?: TEventName
+  ): void;
+  /**
+   * @internal
+   */
+  public clear<TEventName extends AllRemitterEventNames<TConfig>>(
+    eventName?: TEventName
+  ): void;
   public clear<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName?: TEventName
   ): void {
@@ -253,6 +265,15 @@ export class Remitter<TConfig = any> {
    * @param eventName Optional eventName to check.
    * @returns `true` if the eventName has any listener, `false` otherwise. If no eventName is provided, returns `true` if the Remitter has any listener.
    */
+  public has<TEventName extends RemitterEventNames<TConfig>>(
+    eventName?: TEventName
+  ): boolean;
+  /**
+   * @internal
+   */
+  public has<TEventName extends AllRemitterEventNames<TConfig>>(
+    eventName?: TEventName
+  ): boolean;
   public has<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName?: TEventName
   ): boolean {
@@ -286,6 +307,17 @@ export class Remitter<TConfig = any> {
    * @param start A function that is called when listener count of `eventName` grows from 0 to 1.
    *              Returns a disposer when listener count of `eventName` drops from 1 to 0.
    */
+  public remit<TEventName extends RemitterEventNames<TConfig>>(
+    eventName: TEventName,
+    start: (remitter: Remitter<TConfig>) => RemitterDisposer
+  ): RemitterDisposer;
+  /**
+   * @internal
+   */
+  public remit<TEventName extends AllRemitterEventNames<TConfig>>(
+    eventName: TEventName,
+    start: (remitter: Remitter<TConfig>) => RemitterDisposer
+  ): RemitterDisposer;
   public remit<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName: TEventName,
     start: (remitter: Remitter<TConfig>) => RemitterDisposer

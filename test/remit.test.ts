@@ -416,8 +416,8 @@ describe("remit", () => {
     }
     const remitter = new Remitter<RemitterEventData>();
 
-    remitter.remit(remitter.ANY_EVENT, () =>
-      source.on(source.ANY_EVENT, ({ event, data }) => {
+    remitter.remitAny(() =>
+      source.onAny(({ event, data }) => {
         if (event === "a") {
           remitter.emit("c", data);
         } else if (event === "b") {
