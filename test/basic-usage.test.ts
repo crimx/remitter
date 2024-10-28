@@ -405,13 +405,12 @@ describe("basic usage", () => {
     remitter.onceAny(spy);
 
     expect(remitter.has()).toBe(true);
-    expect(remitter.has(remitter.ANY_EVENT)).toBe(true);
+    expect(remitter.hasAny()).toBe(true);
     expect(remitter.has("event1")).toBe(false);
     expect(spy).toHaveBeenCalledTimes(0);
 
     remitter.emit("event1", 1);
     expect(remitter.has()).toBe(true);
-    expect(remitter.has(remitter.ANY_EVENT)).toBe(true);
     expect(remitter.hasAny()).toBe(true);
     expect(remitter.has("event1")).toBe(false);
     expect(spy).toHaveBeenCalledTimes(2);
@@ -421,7 +420,6 @@ describe("basic usage", () => {
 
     remitter.emit("event1", 2);
     expect(remitter.has()).toBe(true);
-    expect(remitter.has(remitter.ANY_EVENT)).toBe(true);
     expect(remitter.hasAny()).toBe(true);
     expect(remitter.has("event1")).toBe(false);
     expect(spy).toHaveBeenCalledTimes(1);
@@ -433,7 +431,6 @@ describe("basic usage", () => {
 
     remitter.emit("event1", 2);
     expect(remitter.has()).toBe(false);
-    expect(remitter.has(remitter.ANY_EVENT)).toBe(false);
     expect(remitter.hasAny()).toBe(false);
     expect(remitter.has("event1")).toBe(false);
     expect(spy).toHaveBeenCalledTimes(0);
@@ -477,7 +474,7 @@ describe("basic usage", () => {
 
     expect(remitter.has()).toBe(true);
     expect(remitter.hasError()).toBe(true);
-    expect(remitter.has(remitter.ERROR_EVENT)).toBe(true);
+    expect(remitter.hasAny()).toBe(false);
 
     expect(spy1).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);

@@ -21,7 +21,7 @@
     "lint": "eslint && prettier --check .",
     "docs": "typedoc --options typedoc.json",
     "test": "vitest",
-    "test:coverage": "vitest --coverage",
+    "test:coverage": "vitest --coverage --coverage.include=src/**",
     "test:ci": "tsc --noEmit && vitest --coverage --coverage.reporter=lcov --coverage.include=src/**",
     "build": "tsup",
     "build:min": "MINIFY=true tsup && node scripts/gzip.mjs",

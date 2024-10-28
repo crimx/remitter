@@ -8,7 +8,7 @@ import type {
   Fn,
   ErrorRemitterListener,
 } from "./interface";
-import type { AdaptiveSet, Single } from "adaptive-set";
+import type { AdaptiveSet } from "adaptive-set";
 
 import { abortable } from "@wopjs/disposable";
 import { add, remove, size } from "adaptive-set";
@@ -80,7 +80,7 @@ export class Remitter<TConfig = any> {
   ): RemitterDisposer {
     const listeners = (this._listeners_ ||= new Map<
       AllRemitterEventNames<TConfig>,
-      Set<Fn> | Single<Fn>
+      AdaptiveSet<Fn>
     >()).get(eventName);
     const oldSize = size(listeners);
     this._listeners_.set(eventName, add(listeners, listener));
@@ -362,10 +362,7 @@ export class Remitter<TConfig = any> {
   /**
    * @internal
    */
-  private _listeners_?: Map<
-    AllRemitterEventNames<TConfig>,
-    Set<Fn> | Single<Fn>
-  >;
+  private _listeners_?: Map<AllRemitterEventNames<TConfig>, AdaptiveSet<Fn>>;
 
   /**
    * @internal
