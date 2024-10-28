@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@wopjs/disposable": "<=0",
-    "adaptive-set": "<=0"
+    "adaptive-set": "<=1"
   },
   "devDependencies": {
     "@eslint/js": "^9.12.0",
