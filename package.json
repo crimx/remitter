@@ -28,7 +28,7 @@
     "release": "commit-and-tag-version"
   },
   "dependencies": {
-    "@wopjs/disposable": "<=0",
+    "@wopjs/disposable": "<=1",
     "adaptive-set": "<=0"
   },
   "devDependencies": {
