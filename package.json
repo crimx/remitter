@@ -45,7 +45,7 @@
     "pretty-bytes": "^6.1.1",
     "rollup": "^4.24.0",
     "tsup": "^8.3.0",
-    "typedoc": "^0.26.9",
+    "typedoc": "^0.27.0",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.9.0",
     "vitest": "^2.1.2",
