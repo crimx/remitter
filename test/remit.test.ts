@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { Remitter } from "../src/index";
 
@@ -140,11 +140,11 @@ describe("remit", () => {
       addListener: vi.fn((listener: OtherEventListener) =>
         otherEventListeners.add(listener)
       ),
-      removeListener: vi.fn((listener: OtherEventListener) =>
-        otherEventListeners.delete(listener)
-      ),
       emit: vi.fn((value: string) =>
         otherEventListeners.forEach(listener => listener(value))
+      ),
+      removeListener: vi.fn((listener: OtherEventListener) =>
+        otherEventListeners.delete(listener)
       ),
     };
 
@@ -417,7 +417,7 @@ describe("remit", () => {
     const remitter = new Remitter<RemitterEventData>();
 
     remitter.remitAny(() =>
-      source.onAny(({ event, data }) => {
+      source.onAny(({ data, event }) => {
         if (event === "a") {
           remitter.emit("c", data);
         } else if (event === "b") {

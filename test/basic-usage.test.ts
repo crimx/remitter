@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { Remitter } from "../src/index";
 
@@ -414,7 +414,7 @@ describe("basic usage", () => {
     expect(remitter.hasAny()).toBe(true);
     expect(remitter.has("event1")).toBe(false);
     expect(spy).toHaveBeenCalledTimes(2);
-    expect(spy).lastCalledWith({ event: "event1", data: 1 });
+    expect(spy).lastCalledWith({ data: 1, event: "event1" });
 
     spy.mockClear();
 
@@ -423,7 +423,7 @@ describe("basic usage", () => {
     expect(remitter.hasAny()).toBe(true);
     expect(remitter.has("event1")).toBe(false);
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).lastCalledWith({ event: "event1", data: 2 });
+    expect(spy).lastCalledWith({ data: 2, event: "event1" });
 
     spy.mockClear();
 

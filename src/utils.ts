@@ -1,4 +1,4 @@
-import type { Fn } from "./interface";
+import { type Fn } from "./interface";
 
 const isFunction = (value: any): value is Fn =>
   !!(value && value.constructor && value.call && value.apply);

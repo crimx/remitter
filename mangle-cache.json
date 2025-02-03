@@ -1,14 +1,14 @@
 {
+  "_emit_": "_o",
+  "_handleError_": "_h",
+  "_listeners_": "_l",
   "_onceListeners_": "_ol",
   "_relayListeners_": "_rl",
-  "_listeners_": "_l",
-  "_emit_": "_o",
   "_startRelay_": "_s",
   "_stopRelay_": "_t",
-  "_tryStopAllRelay_": "_a",
   "_tryCall_": "_c",
+  "_tryStopAllRelay_": "_a",
   "disposer_": "d",
   "eventName_": "e",
-  "_handleError_": "_h",
   "start_": "s"
 }

@@ -6,19 +6,19 @@ import mangleCache from "./mangle-cache.json";
 import pkg from "./package.json";
 
 const base = defineConfig({
-  entry: ["src/index.ts"],
-  target: "esnext",
   clean: true,
-  treeshake: true,
   dts: true,
-  splitting: false,
-  sourcemap: true,
-  minify: Boolean(process.env.MINIFY),
+  entry: ["src/index.ts"],
   esbuildOptions: options => {
     options.sourcesContent = false;
     options.mangleProps = /[^_]_$/;
     options.mangleCache = mangleCache;
   },
+  minify: Boolean(process.env.MINIFY),
+  sourcemap: true,
+  splitting: false,
+  target: "esnext",
+  treeshake: true,
 });
 
 export default defineConfig([
@@ -29,21 +29,21 @@ export default defineConfig([
   {
     ...base,
     format: ["esm"],
-    sourcemap: false,
     noExternal: Object.keys(pkg.dependencies),
-    outExtension: () => ({ js: `.umd.mjs` }),
     onSuccess: async () => {
       const bundle = await rollup({
         input: ["dist/index.umd.mjs"],
       });
 
       await bundle.write({
-        format: "umd",
         file: "dist/index.umd.js",
+        format: "umd",
         name: "Remitter",
       });
 
       await rm("dist/index.umd.mjs");
     },
+    outExtension: () => ({ js: `.umd.mjs` }),
+    sourcemap: false,
   },
 ]);

@@ -1,11 +1,11 @@
 export type {
-  RemitterConfig,
-  RemitterListener,
-  RemitterDisposer,
-  RemitterEventNames,
+  AnyEventData,
   AnyRemitterListener,
   ErrorRemitterListener,
-  AnyEventData,
+  RemitterConfig,
   RemitterDatalessEventName,
+  RemitterDisposer,
+  RemitterEventNames,
+  RemitterListener,
 } from "./interface";
-export { Remitter, type EventReceiver } from "./remitter";
+export { type EventReceiver, Remitter } from "./remitter";
