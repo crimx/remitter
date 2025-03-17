@@ -188,7 +188,7 @@ export class Remitter<TConfig = any> {
           listeners = remove(listeners, onceListener);
         }
       }
-      if (listeners) {
+      if (size(listeners)) {
         this._listeners_!.set(eventName, listeners);
       } else {
         this._listeners_!.delete(eventName);
