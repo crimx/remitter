@@ -181,11 +181,11 @@ export class Remitter<TConfig = any> {
   ): void {
     let listeners = this._listeners_?.get(eventName);
     if (listeners) {
-      listeners = remove(listeners, listener, true);
+      listeners = remove(listeners, listener);
       if (listeners) {
         const onceListener = this._onceListeners_?.get(listener);
         if (onceListener) {
-          listeners = remove(listeners, onceListener, true);
+          listeners = remove(listeners, onceListener);
         }
       }
       if (listeners) {
