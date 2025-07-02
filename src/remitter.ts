@@ -306,7 +306,8 @@ export class Remitter<TConfig = any> {
   ): RemitterDisposer {
     const off = abortable(() => this.off(eventName, onceListener));
     const onceListener = (eventData => (
-      off(), listener(eventData)
+      off(),
+      listener(eventData)
     )) as RemitterListener<TConfig, TEventName>;
     (this._onceListeners_ ||= new WeakMap()).set(listener, onceListener);
     this.on(eventName, onceListener);
