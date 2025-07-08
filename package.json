@@ -1,6 +1,6 @@
 {
   "name": "remitter",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": false,
   "description": "A TypeScript friendly event emitter with easy re-emitting events.",
   "license": "MIT",
