@@ -2,7 +2,6 @@ export type {
   AnyEventData,
   AnyRemitterListener,
   ErrorRemitterListener,
-  RemitterConfig,
   RemitterDatalessEventName,
   RemitterDisposer,
   RemitterEventNames,

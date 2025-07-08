@@ -20,18 +20,14 @@ export type ErrorRemitterListener = (error: unknown) => void;
 
 export type Fn = (...args: any[]) => any;
 
-export type RemitterConfig<TConfig> = TConfig & {
-  [name in ANY_EVENT]: AnyEventData<TConfig>;
-};
-
 export type RemitterDatalessEventName<TConfig> = {
-  [EventName in keyof RemitterConfig<TConfig>]: RemitterConfig<TConfig>[EventName] extends
+  [EventName in keyof TConfig]: TConfig[EventName] extends
     | never
     | undefined
     | void
     ? EventName
     : never;
-}[keyof RemitterConfig<TConfig>];
+}[keyof TConfig];
 
 export type RemitterDisposer = () => void;
 
@@ -39,7 +35,16 @@ export type RemitterEventNames<TConfig> = keyof TConfig;
 
 export type RemitterListener<
   TConfig,
+  TEventName extends RemitterEventNames<TConfig> = RemitterEventNames<TConfig>,
+> = (eventData: TConfig[TEventName]) => void;
+
+export type RemitterConfigInternal<TConfig> = TConfig & {
+  [name in ANY_EVENT]: AnyEventData<TConfig>;
+};
+
+export type RemitterListenerInternal<
+  TConfig,
   TEventName extends RemitterEventNames<
-    RemitterConfig<TConfig>
-  > = RemitterEventNames<RemitterConfig<TConfig>>,
-> = (eventData: RemitterConfig<TConfig>[TEventName]) => void;
+    RemitterConfigInternal<TConfig>
+  > = RemitterEventNames<RemitterConfigInternal<TConfig>>,
+> = (eventData: RemitterConfigInternal<TConfig>[TEventName]) => void;

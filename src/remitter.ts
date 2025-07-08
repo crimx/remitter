@@ -3,6 +3,7 @@ import { type AdaptiveSet, add, remove, size } from "adaptive-set";
 
 import { ANY_EVENT, ERROR_EVENT } from "./constants";
 import {
+  type RemitterListenerInternal,
   type AllRemitterEventNames,
   type AnyRemitterListener,
   type ErrorRemitterListener,
@@ -39,8 +40,8 @@ export class Remitter<TConfig = any> {
    * @internal
    */
   private _onceListeners_?: WeakMap<
-    RemitterListener<TConfig, any>,
-    RemitterListener<TConfig, any>
+    RemitterListenerInternal<TConfig, any>,
+    RemitterListenerInternal<TConfig, any>
   >;
 
   /**
@@ -216,7 +217,7 @@ export class Remitter<TConfig = any> {
    * @internal
    */
   public on(
-    eventName: typeof ANY_EVENT,
+    eventName: ANY_EVENT,
     listener: AnyRemitterListener<TConfig>
   ): RemitterDisposer;
 
@@ -225,7 +226,7 @@ export class Remitter<TConfig = any> {
    * @internal
    */
   public on(
-    eventName: typeof ERROR_EVENT,
+    eventName: ERROR_EVENT,
     listener: ErrorRemitterListener
   ): RemitterDisposer;
   /**
@@ -237,10 +238,18 @@ export class Remitter<TConfig = any> {
   ): RemitterDisposer;
   /**
    * Add a listener to the eventName.
+   * @internal
    */
   public on<TEventName extends RemitterEventNames<TConfig>>(
-    eventName: TEventName,
-    listener: RemitterListener<TConfig, TEventName>
+    eventName: TEventName | ANY_EVENT,
+    listener: RemitterListenerInternal<TConfig, TEventName>
+  ): RemitterDisposer;
+  /**
+   * Add a listener to the eventName.
+   */
+  public on<TEventName extends RemitterEventNames<TConfig>>(
+    eventName: TEventName | ANY_EVENT,
+    listener: RemitterListenerInternal<TConfig, TEventName>
   ): RemitterDisposer {
     const listeners = (this._listeners_ ||= new Map<
       AllRemitterEventNames<TConfig>,
@@ -279,7 +288,7 @@ export class Remitter<TConfig = any> {
    * @internal
    */
   public once(
-    eventName: typeof ANY_EVENT,
+    eventName: ANY_EVENT,
     listener: AnyRemitterListener<TConfig>
   ): RemitterDisposer;
   /**
@@ -287,7 +296,7 @@ export class Remitter<TConfig = any> {
    * @internal
    */
   public once(
-    eventName: typeof ERROR_EVENT,
+    eventName: ERROR_EVENT,
     listener: ErrorRemitterListener
   ): RemitterDisposer;
   /**
@@ -301,14 +310,14 @@ export class Remitter<TConfig = any> {
    * Add a one-time listener to the eventName.
    */
   public once<TEventName extends RemitterEventNames<TConfig>>(
-    eventName: TEventName,
-    listener: RemitterListener<TConfig, TEventName>
+    eventName: TEventName | ANY_EVENT,
+    listener: RemitterListenerInternal<TConfig, TEventName>
   ): RemitterDisposer {
     const off = abortable(() => this.off(eventName, onceListener));
     const onceListener = (eventData => (
       off(),
       listener(eventData)
-    )) as RemitterListener<TConfig, TEventName>;
+    )) as RemitterListenerInternal<TConfig, TEventName>;
     (this._onceListeners_ ||= new WeakMap()).set(listener, onceListener);
     this.on(eventName, onceListener);
     return off;
