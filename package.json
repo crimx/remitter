@@ -34,14 +34,14 @@
     "adaptive-set": "<=1"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.6",
-    "@wopjs/eslint-config": "^0.1.47",
-    "@wopjs/gzip-size": "^0.1.4",
-    "commit-and-tag-version": "^12.6.0",
-    "eslint": "^9.39.0",
-    "prettier": "^3.6.2",
-    "tsup": "^8.5.0",
-    "typedoc": "^0.28.14",
+    "@vitest/coverage-v8": "^4.0.14",
+    "@wopjs/eslint-config": "^0.1.51",
+    "@wopjs/gzip-size": "^0.1.5",
+    "commit-and-tag-version": "^12.6.1",
+    "eslint": "^9.39.1",
+    "prettier": "^3.7.3",
+    "tsup": "^8.5.1",
+    "typedoc": "^0.28.15",
     "typescript": "^5.9.3",
     "vitest": "^4.0.6"
   }
