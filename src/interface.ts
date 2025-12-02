@@ -44,7 +44,6 @@ export type RemitterConfigInternal<TConfig> = TConfig & {
 
 export type RemitterListenerInternal<
   TConfig,
-  TEventName extends RemitterEventNames<
-    RemitterConfigInternal<TConfig>
-  > = RemitterEventNames<RemitterConfigInternal<TConfig>>,
+  TEventName extends RemitterEventNames<RemitterConfigInternal<TConfig>> =
+    RemitterEventNames<RemitterConfigInternal<TConfig>>,
 > = (eventData: RemitterConfigInternal<TConfig>[TEventName]) => void;
