@@ -34,14 +34,14 @@
     "adaptive-set": "<=1"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.16",
-    "@wopjs/eslint-config": "^0.1.56",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@wopjs/eslint-config": "^0.1.60",
     "@wopjs/gzip-size": "^0.1.5",
     "commit-and-tag-version": "^12.6.1",
     "eslint": "^9.39.2",
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.1",
     "tsup": "^8.5.1",
-    "typedoc": "^0.28.15",
+    "typedoc": "^0.28.16",
     "typescript": "^5.9.3",
     "vitest": "^4.0.6"
   }
