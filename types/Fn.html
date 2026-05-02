@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="IE=edge">
-    <title>RemitterListener | remitter - v0.5.1</title>
+    <title>Fn | remitter - v0.5.1</title>
     <meta name="description" content="Documentation for remitter">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../assets/style.css">
@@ -55,58 +55,29 @@
       <div class="col-content">
         <div class="tsd-page-title">
           <ul class="tsd-breadcrumb" aria-label="Breadcrumb">
-            <li><a href="" aria-current="page">RemitterListener</a></li>
+            <li><a href="" aria-current="page">Fn</a></li>
           </ul>
-          <h1>Type Alias RemitterListener&lt;TConfig, TEventName&gt;</h1>
+          <h1>Type Alias Fn</h1>
         </div>
         <div class="tsd-signature">
-          <span class="tsd-kind-type-alias">RemitterListener</span><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">eventData</span
-          ><span class="tsd-signature-symbol">:</span>
-          <a class="tsd-signature-type tsd-kind-type-parameter" href="#tconfig">TConfig</a><span
-            class="tsd-signature-symbol"
-            >[</span
-          ><a class="tsd-signature-type tsd-kind-type-parameter" href="#teventname">TEventName</a
-          ><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">)</span>
-          <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span>
+          <span class="tsd-kind-type-alias">Fn</span><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span
+          ><span class="tsd-kind-parameter">args</span><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span
+          ><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span>
+          <span class="tsd-signature-type">any</span>
         </div>
-        <section class="tsd-panel">
-          <h4>Type Parameters</h4>
-          <ul class="tsd-type-parameter-list">
-            <li>
-              <span id="tconfig"><span class="tsd-kind-type-parameter">TConfig</span></span>
-            </li>
-            <li>
-              <span id="teventname"
-                ><span class="tsd-kind-type-parameter">TEventName</span>
-                <span class="tsd-signature-keyword">extends</span>
-                <a href="RemitterEventNames.html" class="tsd-signature-type tsd-kind-type-alias"
-                  >RemitterEventNames</a
-                ><span class="tsd-signature-symbol">&lt;</span
-                ><a class="tsd-signature-type tsd-kind-type-parameter" href="#tconfig">TConfig</a
-                ><span class="tsd-signature-symbol">&gt;</span>
-                = <a href="RemitterEventNames.html" class="tsd-signature-type tsd-kind-type-alias">RemitterEventNames</a
-                ><span class="tsd-signature-symbol">&lt;</span
-                ><a class="tsd-signature-type tsd-kind-type-parameter" href="#tconfig">TConfig</a
-                ><span class="tsd-signature-symbol">&gt;</span></span
-              >
-            </li>
-          </ul>
-        </section>
         <div class="tsd-type-declaration">
           <h4>Type Declaration</h4>
           <ul class="tsd-parameters">
             <li class="tsd-parameter-signature">
               <ul class="tsd-signatures">
                 <li class="tsd-signature" id="__type">
-                  <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">eventData</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <a class="tsd-signature-type tsd-kind-type-parameter" href="#tconfig">TConfig</a><span
-                    class="tsd-signature-symbol"
-                    >[</span
-                  ><a class="tsd-signature-type tsd-kind-type-parameter" href="#teventname">TEventName</a
-                  ><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">)</span
-                  ><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span>
+                  <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span
+                  ><span class="tsd-kind-parameter">args</span><span class="tsd-signature-symbol">:</span>
+                  <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span
+                  ><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span>
+                  <span class="tsd-signature-type">any</span>
                 </li>
                 <li class="tsd-description">
                   <div class="tsd-parameters">
@@ -114,17 +85,13 @@
                     <ul class="tsd-parameter-list">
                       <li>
                         <span
-                          ><span class="tsd-kind-parameter">eventData</span>:
-                          <a class="tsd-signature-type tsd-kind-type-parameter" href="#tconfig">TConfig</a><span
-                            class="tsd-signature-symbol"
-                            >[</span
-                          ><a class="tsd-signature-type tsd-kind-type-parameter" href="#teventname">TEventName</a
-                          ><span class="tsd-signature-symbol">]</span></span
+                          ><span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">args</span>:
+                          <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></span
                         >
                       </li>
                     </ul>
                   </div>
-                  <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+                  <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
                 </li>
               </ul>
             </li>
@@ -135,8 +102,8 @@
             <li>
               Defined in
               <a
-                href="https://github.com/crimx/remitter/blob/594bfa017333e40bb34475ab8d79a70a1154c906/src/interface.ts#L23"
-                >interface.ts:23</a
+                href="https://github.com/crimx/remitter/blob/594bfa017333e40bb34475ab8d79a70a1154c906/src/interface.ts#L13"
+                >interface.ts:13</a
               >
             </li>
           </ul>
