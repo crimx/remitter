@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { Remitter } from "../src/index";
 
-const nextTick = () => new Promise<void>(resolve => setTimeout(resolve, 0));
+const nextTick = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 describe("remit", () => {
   it("should run prepare when first listener is added", async () => {
@@ -137,15 +137,9 @@ describe("remit", () => {
     type OtherEventListener = (v: string) => void;
     const otherEventListeners = new Set<OtherEventListener>();
     const otherEvent = {
-      addListener: vi.fn((listener: OtherEventListener) =>
-        otherEventListeners.add(listener)
-      ),
-      emit: vi.fn((value: string) =>
-        otherEventListeners.forEach(listener => listener(value))
-      ),
-      removeListener: vi.fn((listener: OtherEventListener) =>
-        otherEventListeners.delete(listener)
-      ),
+      addListener: vi.fn((listener: OtherEventListener) => otherEventListeners.add(listener)),
+      emit: vi.fn((value: string) => otherEventListeners.forEach((listener) => void listener(value))),
+      removeListener: vi.fn((listener: OtherEventListener) => otherEventListeners.delete(listener)),
     };
 
     interface RemitterConfig {
@@ -154,7 +148,7 @@ describe("remit", () => {
 
     const pureStartCallback = (remitter: Remitter<RemitterConfig>) => {
       const handler = (value: string) => {
-        remitter.emit("event1", "remitter-" + value);
+        remitter.emit("event1", `remitter-${value}`);
       };
       otherEvent.addListener(handler);
       return () => otherEvent.removeListener(handler);
@@ -229,9 +223,7 @@ describe("remit", () => {
   });
 
   it("should catch error on listener", async () => {
-    const consoleErrorMock = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => void 0);
+    const consoleErrorMock = vi.spyOn(console, "error").mockImplementation(() => void 0);
 
     const error1 = new Error("error1");
     const error2 = new Error("error2");
@@ -423,7 +415,7 @@ describe("remit", () => {
         } else if (event === "b") {
           remitter.emit("d", data);
         }
-      })
+      }),
     );
 
     const spy = vi.fn();

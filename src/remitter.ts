@@ -2,76 +2,66 @@ import { abortable } from "@wopjs/disposable";
 import { type AdaptiveSet, add, remove, size } from "adaptive-set";
 
 import { ANY_EVENT, ERROR_EVENT } from "./constants";
-import {
-  type RemitterListenerInternal,
-  type AllRemitterEventNames,
-  type AnyRemitterListener,
-  type ErrorRemitterListener,
-  type Fn,
-  type RemitterDatalessEventName,
-  type RemitterDisposer,
-  type RemitterEventNames,
-  type RemitterListener,
+import type {
+  AllRemitterEventNames,
+  AnyRemitterListener,
+  ErrorRemitterListener,
+  Fn,
+  RemitterDatalessEventName,
+  RemitterDisposer,
+  RemitterEventNames,
+  RemitterListener,
+  RemitterListenerInternal,
 } from "./interface";
 import { isPromise } from "./utils";
 
-export type EventReceiver<TConfig = any> = Omit<
-  Remitter<TConfig>,
-  "emit" | "remit" | "remitAny"
->;
+export type EventReceiver<TConfig = any> = Omit<Remitter<TConfig>, "emit" | "remit" | "remitAny">;
 
 interface RelayListener<TConfig = any> {
-  readonly eventName_: AllRemitterEventNames<TConfig>;
-  disposer_?:
-    | null
-    | Promise<RemitterDisposer | undefined>
-    | RemitterDisposer
-    | undefined;
-  readonly start_: (remitter: Remitter<TConfig>) => RemitterDisposer;
+  /** event name */
+  readonly e: AllRemitterEventNames<TConfig>;
+  /** disposer */
+  d?: null | Promise<RemitterDisposer | undefined> | RemitterDisposer | undefined;
+  /** start */
+  readonly s: (remitter: Remitter<TConfig>) => RemitterDisposer;
 }
 
 export class Remitter<TConfig = any> {
   /**
    * @internal
+   * listeners
    */
-  private _listeners_?: Map<AllRemitterEventNames<TConfig>, AdaptiveSet<Fn>>;
+  private _l?: Map<AllRemitterEventNames<TConfig>, AdaptiveSet<Fn>>;
 
   /**
    * @internal
+   * once listeners
    */
-  private _onceListeners_?: WeakMap<
-    RemitterListenerInternal<TConfig, any>,
-    RemitterListenerInternal<TConfig, any>
-  >;
+  private _ol?: WeakMap<RemitterListenerInternal<TConfig, any>, RemitterListenerInternal<TConfig, any>>;
 
   /**
    * @internal
+   * relay listeners
    */
-  private _relayListeners_?: AdaptiveSet<RelayListener<TConfig>>;
+  private _rl?: AdaptiveSet<RelayListener<TConfig>>;
 
   /**
    * Remove all listeners from the eventName or all events.
    * @param eventName Optional eventName to clear.
    */
-  public clear<TEventName extends RemitterEventNames<TConfig>>(
-    eventName?: TEventName
-  ): void;
+  public clear<TEventName extends RemitterEventNames<TConfig>>(eventName?: TEventName): void;
   /**
    * @internal
    */
-  public clear<TEventName extends AllRemitterEventNames<TConfig>>(
-    eventName?: TEventName
-  ): void;
-  public clear<TEventName extends AllRemitterEventNames<TConfig>>(
-    eventName?: TEventName
-  ): void {
-    if (this._listeners_) {
+  public clear<TEventName extends AllRemitterEventNames<TConfig>>(eventName?: TEventName): void;
+  public clear<TEventName extends AllRemitterEventNames<TConfig>>(eventName?: TEventName): void {
+    if (this._l) {
       if (eventName) {
-        this._listeners_.delete(eventName);
+        this._l.delete(eventName);
       } else {
-        this._listeners_ = undefined;
+        this._l = undefined;
       }
-      this._tryStopAllRelay_();
+      this._ter();
     }
   }
 
@@ -86,37 +76,32 @@ export class Remitter<TConfig = any> {
    * Remove all listeners from `ERROR_EVENT`.
    */
   public clearError(): void {
-    return this.clear(ERROR_EVENT);
+    this.clear(ERROR_EVENT);
   }
 
   public dispose(): void {
     this.clear();
-    this._relayListeners_ = undefined;
+    this._rl = undefined;
   }
 
   /**
    * Emit an event to `eventName` listeners.
    */
-  public emit<TEventName extends RemitterDatalessEventName<TConfig>>(
-    eventName: TEventName
-  ): void;
+  public emit<TEventName extends RemitterDatalessEventName<TConfig>>(eventName: TEventName): void;
   /**
    * Emit an event with payload to `eventName` listeners.
    */
   public emit<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
-    eventData: TConfig[TEventName]
+    eventData: TConfig[TEventName],
   ): void;
   /**
    * Emit an event with payload to `eventName` listeners.
    */
-  public emit<TEventName extends RemitterEventNames<TConfig>>(
-    event: TEventName,
-    data?: TConfig[TEventName]
-  ): void {
-    this._emit_(event, data);
+  public emit<TEventName extends RemitterEventNames<TConfig>>(event: TEventName, data?: TConfig[TEventName]): void {
+    this._m(event, data);
     if (event !== ANY_EVENT) {
-      this._emit_(ANY_EVENT, { data, event });
+      this._m(ANY_EVENT, { data, event });
     }
   }
 
@@ -125,23 +110,15 @@ export class Remitter<TConfig = any> {
    * @param eventName Optional eventName to check.
    * @returns `true` if the eventName has any listener, `false` otherwise. If no eventName is provided, returns `true` if the Remitter has any listener.
    */
-  public has<TEventName extends RemitterEventNames<TConfig>>(
-    eventName?: TEventName
-  ): boolean;
+  public has<TEventName extends RemitterEventNames<TConfig>>(eventName?: TEventName): boolean;
 
   /**
    * @internal
    */
-  public has<TEventName extends AllRemitterEventNames<TConfig>>(
-    eventName?: TEventName
-  ): boolean;
+  public has<TEventName extends AllRemitterEventNames<TConfig>>(eventName?: TEventName): boolean;
 
-  public has<TEventName extends AllRemitterEventNames<TConfig>>(
-    eventName?: TEventName
-  ): boolean {
-    return eventName
-      ? !!this._listeners_?.get(eventName)
-      : (this._listeners_?.size as number) > 0;
+  public has<TEventName extends AllRemitterEventNames<TConfig>>(eventName?: TEventName): boolean {
+    return eventName ? !!this._l?.get(eventName) : (this._l?.size as number) > 0;
   }
 
   /**
@@ -163,37 +140,28 @@ export class Remitter<TConfig = any> {
   /**
    * Remove a listener from the eventName.
    */
-  public off<TEventName extends RemitterEventNames<TConfig>>(
-    eventName: TEventName,
-    listener: Fn
-  ): void;
+  public off<TEventName extends RemitterEventNames<TConfig>>(eventName: TEventName, listener: Fn): void;
 
   /**
    * @internal
    */
-  public off<TEventName extends AllRemitterEventNames<TConfig>>(
-    eventName: TEventName,
-    listener: Fn
-  ): void;
+  public off<TEventName extends AllRemitterEventNames<TConfig>>(eventName: TEventName, listener: Fn): void;
 
-  public off<TEventName extends AllRemitterEventNames<TConfig>>(
-    eventName: TEventName,
-    listener: Fn
-  ): void {
-    let listeners = this._listeners_?.get(eventName);
+  public off<TEventName extends AllRemitterEventNames<TConfig>>(eventName: TEventName, listener: Fn): void {
+    let listeners = this._l?.get(eventName);
     if (listeners) {
       listeners = remove(listeners, listener);
       if (listeners) {
-        const onceListener = this._onceListeners_?.get(listener);
+        const onceListener = this._ol?.get(listener);
         if (onceListener) {
           listeners = remove(listeners, onceListener);
         }
       }
       if (size(listeners)) {
-        this._listeners_!.set(eventName, listeners);
+        this._l!.set(eventName, listeners);
       } else {
-        this._listeners_!.delete(eventName);
-        this._tryStopAllRelay_();
+        this._l!.delete(eventName);
+        this._ter();
       }
     }
   }
@@ -216,25 +184,19 @@ export class Remitter<TConfig = any> {
    * Add an `ANY_EVENT` listener to receive all events.
    * @internal
    */
-  public on(
-    eventName: ANY_EVENT,
-    listener: AnyRemitterListener<TConfig>
-  ): RemitterDisposer;
+  public on(eventName: ANY_EVENT, listener: AnyRemitterListener<TConfig>): RemitterDisposer;
 
   /**
    * Add an `ERROR_EVENT` listener to receive unhandled subscriber errors.
    * @internal
    */
-  public on(
-    eventName: ERROR_EVENT,
-    listener: ErrorRemitterListener
-  ): RemitterDisposer;
+  public on(eventName: ERROR_EVENT, listener: ErrorRemitterListener): RemitterDisposer;
   /**
    * Add a listener to the eventName.
    */
   public on<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
-    listener: RemitterListener<TConfig, TEventName>
+    listener: RemitterListener<TConfig, TEventName>,
   ): RemitterDisposer;
   /**
    * Add a listener to the eventName.
@@ -242,31 +204,23 @@ export class Remitter<TConfig = any> {
    */
   public on<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName | ANY_EVENT,
-    listener: RemitterListenerInternal<TConfig, TEventName>
+    listener: RemitterListenerInternal<TConfig, TEventName>,
   ): RemitterDisposer;
   /**
    * Add a listener to the eventName.
    */
   public on<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName | ANY_EVENT,
-    listener: RemitterListenerInternal<TConfig, TEventName>
+    listener: RemitterListenerInternal<TConfig, TEventName>,
   ): RemitterDisposer {
-    const listeners = (this._listeners_ ||= new Map<
-      AllRemitterEventNames<TConfig>,
-      AdaptiveSet<Fn>
-    >()).get(eventName);
+    const listeners = (this._l ||= new Map<AllRemitterEventNames<TConfig>, AdaptiveSet<Fn>>()).get(eventName);
     const oldSize = size(listeners);
-    this._listeners_.set(eventName, add(listeners, listener));
+    this._l.set(eventName, add(listeners, listener));
 
-    if (!oldSize && this._relayListeners_) {
-      for (const listener of this._relayListeners_) {
-        if (
-          !listener.disposer_ &&
-          (listener.eventName_ === ANY_EVENT ||
-            this.has(listener.eventName_) ||
-            this.has(ANY_EVENT))
-        ) {
-          this._startRelay_(listener);
+    if (!oldSize && this._rl) {
+      for (const listener of this._rl) {
+        if (!listener.d && (listener.e === ANY_EVENT || this.has(listener.e) || this.has(ANY_EVENT))) {
+          this._sr(listener);
         }
       }
     }
@@ -287,38 +241,29 @@ export class Remitter<TConfig = any> {
    * Add a one-time listener to `ANY_EVENT` to receive all events.
    * @internal
    */
-  public once(
-    eventName: ANY_EVENT,
-    listener: AnyRemitterListener<TConfig>
-  ): RemitterDisposer;
+  public once(eventName: ANY_EVENT, listener: AnyRemitterListener<TConfig>): RemitterDisposer;
   /**
    * Add a one-time listener to `ERROR_EVENT` to receive unhandled subscriber errors.
    * @internal
    */
-  public once(
-    eventName: ERROR_EVENT,
-    listener: ErrorRemitterListener
-  ): RemitterDisposer;
+  public once(eventName: ERROR_EVENT, listener: ErrorRemitterListener): RemitterDisposer;
   /**
    * Add a one-time listener to the eventName.
    */
   public once<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
-    listener: RemitterListener<TConfig, TEventName>
+    listener: RemitterListener<TConfig, TEventName>,
   ): RemitterDisposer;
   /**
    * Add a one-time listener to the eventName.
    */
   public once<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName | ANY_EVENT,
-    listener: RemitterListenerInternal<TConfig, TEventName>
+    listener: RemitterListenerInternal<TConfig, TEventName>,
   ): RemitterDisposer {
     const off = abortable(() => this.off(eventName, onceListener));
-    const onceListener = (eventData => (
-      off(),
-      listener(eventData)
-    )) as RemitterListenerInternal<TConfig, TEventName>;
-    (this._onceListeners_ ||= new WeakMap()).set(listener, onceListener);
+    const onceListener = ((eventData) => (off(), listener(eventData))) as RemitterListenerInternal<TConfig, TEventName>;
+    (this._ol ||= new WeakMap()).set(listener, onceListener);
     this.on(eventName, onceListener);
     return off;
   }
@@ -355,7 +300,7 @@ export class Remitter<TConfig = any> {
    */
   public remit<TEventName extends RemitterEventNames<TConfig>>(
     eventName: TEventName,
-    start: (remitter: Remitter<TConfig>) => RemitterDisposer
+    start: (remitter: Remitter<TConfig>) => RemitterDisposer,
   ): RemitterDisposer;
 
   /**
@@ -363,27 +308,23 @@ export class Remitter<TConfig = any> {
    */
   public remit<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName: TEventName,
-    start: (remitter: Remitter<TConfig>) => RemitterDisposer
+    start: (remitter: Remitter<TConfig>) => RemitterDisposer,
   ): RemitterDisposer;
   public remit<TEventName extends AllRemitterEventNames<TConfig>>(
     eventName: TEventName,
-    start: (remitter: Remitter<TConfig>) => RemitterDisposer
+    start: (remitter: Remitter<TConfig>) => RemitterDisposer,
   ): RemitterDisposer {
     const relayListener: RelayListener<TConfig> = {
-      eventName_: eventName,
-      start_: start,
+      e: eventName,
+      s: start,
     };
-    this._relayListeners_ = add(this._relayListeners_, relayListener);
-    if (
-      eventName === ANY_EVENT
-        ? this.has()
-        : this.has(eventName) || this.has(ANY_EVENT)
-    ) {
-      this._startRelay_(relayListener);
+    this._rl = add(this._rl, relayListener);
+    if (eventName === ANY_EVENT ? this.has() : this.has(eventName) || this.has(ANY_EVENT)) {
+      this._sr(relayListener);
     }
     return () => {
-      this._relayListeners_ = remove(this._relayListeners_, relayListener);
-      this._stopRelay_(relayListener);
+      this._rl = remove(this._rl, relayListener);
+      this._er(relayListener);
     };
   }
 
@@ -395,33 +336,30 @@ export class Remitter<TConfig = any> {
    * @param start A function that is called when all listener count grows from 0 to 1.
    *              Returns a disposer when all listener count drops from 1 to 0.
    */
-  public remitAny(
-    start: (remitter: Remitter<TConfig>) => RemitterDisposer
-  ): RemitterDisposer {
+  public remitAny(start: (remitter: Remitter<TConfig>) => RemitterDisposer): RemitterDisposer {
     return this.remit(ANY_EVENT, start);
   }
 
   /**
    * @internal
+   * emit
    */
-  private _emit_<TEventName extends AllRemitterEventNames<TConfig>>(
-    event: TEventName,
-    data: any
-  ): void {
-    const listeners = this._listeners_?.get(event);
+  private _m<TEventName extends AllRemitterEventNames<TConfig>>(event: TEventName, data: any): void {
+    const listeners = this._l?.get(event);
     if (listeners) {
       for (const listener of listeners) {
-        this._tryCall_(listener, data);
+        this._tc(listener, data);
       }
     }
   }
 
   /**
    * @internal
+   * handle error
    */
-  private _handleError_ = (e: unknown) => {
+  private _h = (e: unknown) => {
     if (this.has(ERROR_EVENT)) {
-      this._emit_(ERROR_EVENT, e);
+      this._m(ERROR_EVENT, e);
     } else {
       console.error(e);
     }
@@ -429,67 +367,60 @@ export class Remitter<TConfig = any> {
 
   /**
    * @internal
+   * start relay
    */
-  private async _startRelay_(listener: RelayListener) {
-    listener.disposer_ =
-      this._tryCall_(listener.start_, this) || Promise.resolve();
+  private async _sr(listener: RelayListener) {
+    listener.d = this._tc(listener.s, this) || Promise.resolve();
   }
 
   /**
    * @internal
+   * end relay
    */
-  private async _stopRelay_(listener: RelayListener): Promise<void> {
-    const pDisposer = listener.disposer_;
+  private async _er(listener: RelayListener): Promise<void> {
+    const pDisposer = listener.d;
     if (pDisposer) {
-      listener.disposer_ = null;
+      listener.d = null;
       const disposer = isPromise(pDisposer) ? await pDisposer : pDisposer;
       if (disposer) {
-        this._tryCall_(disposer);
+        this._tc(disposer);
       }
     }
   }
 
   /**
    * @internal
+   * try call
    */
-  private _tryCall_<TReturn = void>(
-    fn: () => TReturn
-  ): Promise<TReturn | undefined>;
+  private _tc<TReturn = void>(fn: () => TReturn): Promise<TReturn | undefined>;
   /**
    * @internal
    */
-  private _tryCall_<TReturn = void, TArg = any>(
-    fn: (arg: TArg) => TReturn,
-    arg: TArg
-  ): Promise<TReturn | undefined>;
+  private _tc<TReturn = void, TArg = any>(fn: (arg: TArg) => TReturn, arg: TArg): Promise<TReturn | undefined>;
   /**
    * @internal
    */
-  private _tryCall_<TReturn = void, TArg = any>(
+  private _tc<TReturn = void, TArg = any>(
     fn: (arg?: TArg) => Promise<TReturn> | TReturn,
-    arg?: TArg
+    arg?: TArg,
   ): Promise<TReturn | undefined | void> | TReturn | undefined {
     try {
       const p = fn(arg);
-      return isPromise(p) ? p.catch(this._handleError_) : p;
+      return isPromise(p) ? p.catch(this._h) : p;
     } catch (e) {
-      this._handleError_(e);
+      this._h(e);
     }
   }
 
   /**
    * @internal
+   * try stop all relay
    */
-  private _tryStopAllRelay_() {
-    if (this._relayListeners_) {
-      for (const listener of this._relayListeners_) {
-        if (
-          listener.disposer_ &&
-          (listener.eventName_ === ANY_EVENT
-            ? !this.has()
-            : !this.has(ANY_EVENT) && !this.has(listener.eventName_))
-        ) {
-          this._stopRelay_(listener);
+  private _ter() {
+    if (this._rl) {
+      for (const listener of this._rl) {
+        if (listener.d && (listener.e === ANY_EVENT ? !this.has() : !this.has(ANY_EVENT) && !this.has(listener.e))) {
+          this._er(listener);
         }
       }
     }

@@ -6,7 +6,7 @@
     "isolatedModules": true,
     "lib": ["DOM", "ESNext"],
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noUnusedParameters": true,
@@ -15,7 +15,8 @@
     "skipLibCheck": true,
     "strict": true,
     "stripInternal": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "types": ["node"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "test/**/*", "*.ts"]
 }

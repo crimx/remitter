@@ -1,10 +1,29 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { ANY_EVENT } from "../src/constants";
 import { Remitter } from "../src/index";
 
-const nextTick = () => new Promise(resolve => setTimeout(resolve, 0));
+const nextTick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("basic usage", () => {
+  it("should no-op when clearing empty remitter", () => {
+    interface RemitterConfig {
+      event1: number;
+    }
+
+    const remitter = new Remitter<RemitterConfig>();
+
+    expect(remitter.has()).toBe(false);
+    expect(remitter.has("event1")).toBe(false);
+
+    remitter.clear();
+    remitter.clear("event1");
+    remitter.dispose();
+
+    expect(remitter.has()).toBe(false);
+    expect(remitter.has("event1")).toBe(false);
+  });
+
   it("should add listener", () => {
     const spy = vi.fn();
 
@@ -110,18 +129,18 @@ describe("basic usage", () => {
       event1: number;
     }
     const remitter = new Remitter<RemitterConfig>();
-    spies.forEach(spy => {
+    spies.forEach((spy) => {
       remitter.on("event1", spy);
     });
 
     expect(remitter.has()).toBe(true);
     expect(remitter.has("event1")).toBe(true);
-    spies.forEach(spy => {
+    spies.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
 
     remitter.emit("event1", 1);
-    spies.forEach(spy => {
+    spies.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).lastCalledWith(1);
     });
@@ -131,7 +150,7 @@ describe("basic usage", () => {
     expect(remitter.has("event1")).toBe(false);
 
     remitter.emit("event1", 2);
-    spies.forEach(spy => {
+    spies.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).lastCalledWith(1);
     });
@@ -145,7 +164,7 @@ describe("basic usage", () => {
       event1: number;
     }
     const remitter = new Remitter<RemitterConfig>();
-    spies.forEach(spy => {
+    spies.forEach((spy) => {
       remitter.onAny(spy);
     });
     remitter.on("event1", spyEvent1);
@@ -153,13 +172,13 @@ describe("basic usage", () => {
     expect(remitter.has()).toBe(true);
     expect(remitter.hasAny()).toBe(true);
     expect(remitter.has("event1")).toBe(true);
-    spies.forEach(spy => {
+    spies.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
     expect(spyEvent1).toHaveBeenCalledTimes(0);
 
     remitter.emit("event1", 1);
-    spies.forEach(spy => {
+    spies.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).lastCalledWith({
         data: 1,
@@ -169,7 +188,7 @@ describe("basic usage", () => {
     expect(spyEvent1).toHaveBeenCalledTimes(1);
     expect(spyEvent1).lastCalledWith(1);
 
-    spies.forEach(spy => {
+    spies.forEach((spy) => {
       spy.mockClear();
     });
     spyEvent1.mockClear();
@@ -180,7 +199,7 @@ describe("basic usage", () => {
     expect(remitter.has("event1")).toBe(true);
 
     remitter.emit("event1", 2);
-    spies.forEach(spy => {
+    spies.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
     expect(spyEvent1).toHaveBeenCalledTimes(1);
@@ -196,29 +215,29 @@ describe("basic usage", () => {
       event2: number;
     }
     const remitter = new Remitter<RemitterConfig>();
-    spies1.forEach(spy => {
+    spies1.forEach((spy) => {
       remitter.on("event1", spy);
     });
-    spies2.forEach(spy => {
+    spies2.forEach((spy) => {
       remitter.on("event2", spy);
     });
 
     expect(remitter.has()).toBe(true);
     expect(remitter.has("event1")).toBe(true);
     expect(remitter.has("event2")).toBe(true);
-    spies1.forEach(spy => {
+    spies1.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
-    spies2.forEach(spy => {
+    spies2.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
 
     remitter.emit("event1", 1);
-    spies1.forEach(spy => {
+    spies1.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).lastCalledWith(1);
     });
-    spies2.forEach(spy => {
+    spies2.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
 
@@ -228,11 +247,11 @@ describe("basic usage", () => {
     expect(remitter.has("event2")).toBe(false);
 
     remitter.emit("event1", 2);
-    spies1.forEach(spy => {
+    spies1.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).lastCalledWith(1);
     });
-    spies2.forEach(spy => {
+    spies2.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
   });
@@ -303,29 +322,29 @@ describe("basic usage", () => {
       event2: number;
     }
     const remitter = new Remitter<RemitterConfig>();
-    spies1.forEach(spy => {
+    spies1.forEach((spy) => {
       remitter.on("event1", spy);
     });
-    spies2.forEach(spy => {
+    spies2.forEach((spy) => {
       remitter.on("event2", spy);
     });
 
     expect(remitter.has()).toBe(true);
     expect(remitter.has("event1")).toBe(true);
     expect(remitter.has("event2")).toBe(true);
-    spies1.forEach(spy => {
+    spies1.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
-    spies2.forEach(spy => {
+    spies2.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
 
     remitter.emit("event1", 1);
-    spies1.forEach(spy => {
+    spies1.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).lastCalledWith(1);
     });
-    spies2.forEach(spy => {
+    spies2.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
 
@@ -335,11 +354,11 @@ describe("basic usage", () => {
     expect(remitter.has("event2")).toBe(false);
 
     remitter.emit("event1", 2);
-    spies1.forEach(spy => {
+    spies1.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).lastCalledWith(1);
     });
-    spies2.forEach(spy => {
+    spies2.forEach((spy) => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
   });
@@ -436,10 +455,28 @@ describe("basic usage", () => {
     expect(spy).toHaveBeenCalledTimes(0);
   });
 
+  it("should emit internal ANY_EVENT without relaying it again", () => {
+    const spy = vi.fn();
+
+    interface RemitterConfig {
+      event1: number;
+    }
+    const remitter = new Remitter<RemitterConfig>();
+    remitter.onAny(spy);
+
+    const payload = {
+      data: 1,
+      event: "event1",
+    };
+
+    (remitter as unknown as { emit(event: typeof ANY_EVENT, data: typeof payload): void }).emit(ANY_EVENT, payload);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).lastCalledWith(payload);
+  });
+
   it("should onError", async () => {
-    const consoleErrorMock = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => void 0);
+    const consoleErrorMock = vi.spyOn(console, "error").mockImplementation(() => void 0);
 
     const spy1 = vi.fn();
     const spy2 = vi.fn();

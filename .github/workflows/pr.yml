@@ -1,4 +1,4 @@
-on: ["pull_request"]
+on: [ "pull_request" ]
 
 name: Build and Test PR
 
@@ -20,7 +20,7 @@ jobs:
 
       - name: Lint 🧹
         run: |
-          npm run lint
+          npm run lint:ci
           npm run ts-check
 
       - name: Build 🔧
