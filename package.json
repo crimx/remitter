@@ -48,14 +48,14 @@
     "adaptive-set": "<=1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.1",
-    "@types/node": "^26.0.1",
-    "@vitest/coverage-v8": "^4.1.9",
+    "@biomejs/biome": "^2.5.6",
+    "@types/node": "^26.1.2",
+    "@vitest/coverage-v8": "^4.1.10",
     "@wopjs/gzip-size": "^0.1.5",
-    "commit-and-tag-version": "^12.7.3",
-    "tsdown": "^0.22.3",
-    "typedoc": "^0.28.18",
-    "typescript": "^6.0.2",
+    "commit-and-tag-version": "^13.1.2",
+    "tsdown": "^0.22.14",
+    "typedoc": "^0.28.20",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.5"
   }
 }
