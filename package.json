@@ -48,9 +48,9 @@
     "adaptive-set": "<=1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.6",
-    "@types/node": "^26.1.2",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@biomejs/biome": "^2.5.11",
+    "@types/node": "^26.4.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "@wopjs/gzip-size": "^0.1.5",
     "commit-and-tag-version": "^13.1.2",
     "tsdown": "^0.22.14",
