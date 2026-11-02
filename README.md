@@ -30,11 +30,11 @@ interface EventData {
 
 const remitter = new Remitter<EventData>();
 
-const disposer = remitter.on("event1", value => {
+const disposer = remitter.on("event1", (value) => {
   console.log("event1", value);
 });
 
-remitter.once("event1", value => {
+remitter.once("event1", (value) => {
   console.log("event1-once", value);
 });
 
@@ -88,7 +88,7 @@ interface EventData {
 
 const remitter = new Remitter<EventData>();
 
-remitter.onError(error => {
+remitter.onError((error) => {
   console.log(error);
 });
 
@@ -97,7 +97,7 @@ remitter.emit("event1", () => {
 });
 
 remitter.emit("event2", async () => {
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
   throw new Error("async-error");
 });
 ```
@@ -108,7 +108,7 @@ You may tap into other events easily with `remit`. It is lazy-executed when list
 
 ```js
 remitter.remit("cursor", () => {
-  const handler = ev => {
+  const handler = (ev) => {
     remitter.emit("cursor", { x: ev.clientX, y: ev.clientY });
   };
 
@@ -120,7 +120,7 @@ remitter.remit("cursor", () => {
 });
 
 // Remit callback does not execute until the first "cursor" listener is added
-remitter.on("cursor", value => {
+remitter.on("cursor", (value) => {
   console.log("cursor", value);
 });
 
@@ -132,8 +132,8 @@ remitter.clear("cursor");
 The callback function can also be a pure function.
 
 ```js
-const myCursorEvent = remitter => {
-  const handler = ev => {
+const myCursorEvent = (remitter) => {
+  const handler = (ev) => {
     remitter.emit("cursor", { x: ev.clientX, y: ev.clientY });
   };
 

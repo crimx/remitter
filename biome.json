@@ -7,7 +7,7 @@
     "experimentalFullSupportEnabled": true
   },
   "files": {
-    "includes": ["**", "!dist", "!coverage", "!node_modules", "!docs"]
+    "includes": ["**", "!dist", "!coverage", "!node_modules", "!docs", "!CHANGELOG.md"]
   },
   "formatter": {
     "indentStyle": "space",
